@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     msxImage.setImageBitmap(dataHolder.msxBitmap);
-                    photoImage.setImageBitmap(dataHolder.dcBitmap);
+                    //photoImage.setImageBitmap(dataHolder.dcBitmap);
                 }
             });
         }
@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG,"framebuffer size:"+framesBuffer.size());
                     FrameDataHolder poll = framesBuffer.poll();
                     msxImage.setImageBitmap(poll.msxBitmap);
-                    photoImage.setImageBitmap(poll.dcBitmap);
+                    //photoImage.setImageBitmap(poll.dcBitmap);
                 }
             });
 
@@ -346,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
         //discoveryStatus = findViewById(R.id.discovery_status);
 
         msxImage = findViewById(R.id.msx_image);
-        photoImage = findViewById(R.id.photo_image);
+        //photoImage = findViewById(R.id.photo_image);
     }
 
 }

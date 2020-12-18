@@ -10,4 +10,6 @@
     <string name="start_discovery_text">start Discovery</string>
     <string name="stop_discovery_text">stop Discovery</string>
     <string name="disconnect_text">Disconnect</string>
+    <string name="image_with_ir_and_visual_data_mixed">image with IR and visual data mixed</string>
+    <string name="image_with_only_visual_image">image with only visual image</string>
 </resources>

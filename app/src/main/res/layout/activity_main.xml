@@ -50,21 +50,13 @@
 
         <ImageView
             android:id="@+id/msx_image"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:contentDescription="image with IR and visual data mixed"
+            android:layout_width="match_parent"
+            android:layout_height="551dp"
+            android:contentDescription="@string/image_with_ir_and_visual_data_mixed"
             android:maxWidth="50dp"
             android:minWidth="50dp" />
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/photo_image"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:contentDescription="image with only visual image"
-        android:maxWidth="50dp"
-        android:minWidth="50dp" />
 
 
 </LinearLayout>
