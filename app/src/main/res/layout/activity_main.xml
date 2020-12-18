@@ -15,34 +15,8 @@
         android:textSize="20sp" />
 
     <!-- Show SDK version  -->
-    <TextView
-        android:id="@+id/sdk_version"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/sdk_version_text"
-        android:textSize="18sp" />
 
     <!-- Start / Stop discovery buttons  -->
-    <Button
-        android:text="@string/start_discovery_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="startDiscovery"
-        android:id="@+id/start_discovery"/>
-
-    <Button
-        android:text="@string/stop_discovery_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="stopDiscovery"
-        android:id="@+id/stop_discovery"/>
-
-    <TextView
-        android:id="@+id/discovery_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/discovery_status_text"
-        android:textSize="18sp" />
 
     <!-- Connect to FLIR ONE / Emulators buttons  -->
     <LinearLayout
@@ -55,19 +29,6 @@
             android:layout_height="wrap_content"
             android:text="@string/connect_f1_text" />
 
-        <Button
-            android:id="@+id/connect_s1"
-            android:onClick="connectSimulatorOne"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/connect_sim1_text" />
-
-        <Button
-            android:id="@+id/connect_s2"
-            android:onClick="connectSimulatorTwo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/connect_sim2_text" />
     </LinearLayout>
 
     <Button

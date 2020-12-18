@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupViews();
 
-        showSDKversion(ThermalSdkAndroid.getVersion());
+        //showSDKversion(ThermalSdkAndroid.getVersion());
     }
 
     public void startDiscovery(View view) {
@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void connectFlirOne(View view) {
+        startDiscovery();
         connect(cameraHandler.getFlirOne());
     }
 
@@ -231,12 +232,12 @@ public class MainActivity extends AppCompatActivity {
     private CameraHandler.DiscoveryStatus discoveryStatusListener = new CameraHandler.DiscoveryStatus() {
         @Override
         public void started() {
-            discoveryStatus.setText(getString(R.string.connection_status_text, "discovering"));
+            //discoveryStatus.setText(getString(R.string.connection_status_text, "discovering"));
         }
 
         @Override
         public void stopped() {
-            discoveryStatus.setText(getString(R.string.connection_status_text, "not discovering"));
+            //discoveryStatus.setText(getString(R.string.connection_status_text, "not discovering"));
         }
     };
 
@@ -334,15 +335,15 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void showSDKversion(String version) {
-        TextView sdkVersionTextView = findViewById(R.id.sdk_version);
-        String sdkVersionText = getString(R.string.sdk_version_text, version);
-        sdkVersionTextView.setText(sdkVersionText);
-    }
+//    private void showSDKversion(String version) {
+//        TextView sdkVersionTextView = findViewById(R.id.sdk_version);
+//        String sdkVersionText = getString(R.string.sdk_version_text, version);
+//        sdkVersionTextView.setText(sdkVersionText);
+//    }
 
     private void setupViews() {
         connectionStatus = findViewById(R.id.connection_status_text);
-        discoveryStatus = findViewById(R.id.discovery_status);
+        //discoveryStatus = findViewById(R.id.discovery_status);
 
         msxImage = findViewById(R.id.msx_image);
         photoImage = findViewById(R.id.photo_image);
