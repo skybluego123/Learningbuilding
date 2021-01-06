@@ -268,6 +268,8 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    //int[] pixels =  new int[0];
+                    //dataHolder.msxBitmap.getPixels(pixels,0,0,0,0);
                     msxImage.setImageBitmap(dataHolder.msxBitmap);
                     //photoImage.setImageBitmap(dataHolder.dcBitmap);
                 }
@@ -278,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
         public void images(Bitmap msxBitmap, Bitmap dcBitmap) {
 
             try {
+                Log.d(TAG,"loading bitmap");
                 framesBuffer.put(new FrameDataHolder(msxBitmap,dcBitmap));
             } catch (InterruptedException e) {
                 //if interrupted while waiting for adding a new item in the queue

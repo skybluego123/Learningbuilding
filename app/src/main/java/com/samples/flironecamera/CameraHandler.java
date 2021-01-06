@@ -13,6 +13,8 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.flir.thermalsdk.androidsdk.image.BitmapAndroid;
+import com.flir.thermalsdk.image.ColorDistribution;
+import com.flir.thermalsdk.image.Point;
 import com.flir.thermalsdk.image.ThermalImage;
 import com.flir.thermalsdk.image.fusion.FusionMode;
 import com.flir.thermalsdk.live.Camera;
@@ -216,6 +218,29 @@ class CameraHandler {
             {
                 thermalImage.getFusion().setFusionMode(FusionMode.THERMAL_ONLY);
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();
+                //Log.d(TAG, msxBitmap.toString());
+                System.out.println(msxBitmap.getHeight()+ " " +msxBitmap.getWidth());
+                System.out.println(thermalImage.getHeight()+ " " +thermalImage.getWidth());
+                Log.d(TAG,thermalImage.getTemperatureUnit().toString());
+                double cutoff = 300;
+                for(int i =0;i<thermalImage.getWidth();i++)
+                {
+                    for(int j=0;j<thermalImage.getHeight();j++)
+                    {
+                        Point p = new Point(i,j);
+                        if(thermalImage.getValueAt(p) > cutoff)
+                        {
+                            msxBitmap.setPixel(i,j,-1);
+                        }
+//                        else
+//                        {
+//                            msxBitmap.setPixel(i,j,255);
+//                        }
+                    }
+                    System.out.println();
+                }
+
+
             }
 
             //Get a bitmap with the visual image, it might have different dimensions then the bitmap from THERMAL_ONLY
@@ -223,6 +248,7 @@ class CameraHandler {
 
             Log.d(TAG,"adding images to cache");
             streamDataListener.images(msxBitmap,dcBitmap);
+
         }
     };
 
