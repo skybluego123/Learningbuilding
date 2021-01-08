@@ -15,6 +15,7 @@ import android.util.Log;
 import com.flir.thermalsdk.androidsdk.image.BitmapAndroid;
 import com.flir.thermalsdk.image.ColorDistribution;
 import com.flir.thermalsdk.image.Point;
+import com.flir.thermalsdk.image.Rectangle;
 import com.flir.thermalsdk.image.ThermalImage;
 import com.flir.thermalsdk.image.fusion.FusionMode;
 import com.flir.thermalsdk.live.Camera;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import static java.lang.Math.floor;
 
 /**
  * Encapsulates the handling of a FLIR ONE camera or built in emulator, discovery, connecting and start receiving images.
@@ -62,6 +65,7 @@ class CameraHandler {
 
     public interface StreamDataListener {
         void images(FrameDataHolder dataHolder);
+
         void images(Bitmap msxBitmap, Bitmap dcBitmap);
     }
 
@@ -74,6 +78,7 @@ class CameraHandler {
 
     public interface DiscoveryStatus {
         void started();
+
         void stopped();
     }
 
@@ -221,36 +226,47 @@ class CameraHandler {
                 //Log.d(TAG, msxBitmap.toString());
                 System.out.println(msxBitmap.getHeight()+ " " +msxBitmap.getWidth());
                 System.out.println(thermalImage.getHeight()+ " " +thermalImage.getWidth());
-                Log.d(TAG,thermalImage.getTemperatureUnit().toString());
+//                Log.d(TAG,thermalImage.getTemperatureUnit().toString());
                 double cutoff = 300;
-                for(int i =0;i<thermalImage.getWidth();i++)
-                {
-                    for(int j=0;j<thermalImage.getHeight();j++)
-                    {
-                        Point p = new Point(i,j);
-                        if(thermalImage.getValueAt(p) > cutoff)
-                        {
-                            msxBitmap.setPixel(i,j,-1);
-                        }
-//                        else
-//                        {
-//                            msxBitmap.setPixel(i,j,255);
-//                        }
+                Rectangle rectangle = new Rectangle(0, 0, thermalImage.getWidth(), thermalImage.getHeight());
+                double[] all_temp = thermalImage.getValues(rectangle);
+                System.out.println(all_temp.length);
+                for (int i = 0; i < all_temp.length; i++) {
+                    if (all_temp[i] > cutoff) {
+                        msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()+1), -1);
                     }
-                    System.out.println();
+
                 }
+//                for(int i =0;i<thermalImage.getWidth();i++)
+//                {
+//                    for(int j=0;j<thermalImage.getHeight();j++)
+//                    {
+//                        Point p = new Point(i,j);
+//                        if(thermalImage.getValueAt(p) > cutoff)
+//                        {
+//                            msxBitmap.setPixel(i,j,-1);
+//                        }
+////                        else
+////                        {
+////                            msxBitmap.setPixel(i,j,255);
+////                        }
+//                    }
+//                    System.out.println();
+//                }
+//
+//
+//            }
 
-
+                //Get a bitmap with the visual image, it might have different dimensions then the bitmap from THERMAL_ONLY
+                Bitmap dcBitmap = BitmapAndroid.createBitmap(thermalImage.getFusion().getPhoto()).getBitMap();
+                System.out.println(dcBitmap.getWidth()+" "+dcBitmap.getHeight());
+                Log.d(TAG, "adding images to cache");
+                streamDataListener.images(msxBitmap, dcBitmap);
             }
 
-            //Get a bitmap with the visual image, it might have different dimensions then the bitmap from THERMAL_ONLY
-            Bitmap dcBitmap = BitmapAndroid.createBitmap(thermalImage.getFusion().getPhoto()).getBitMap();
-
-            Log.d(TAG,"adding images to cache");
-            streamDataListener.images(msxBitmap,dcBitmap);
-
         }
+
+
     };
-
-
 }
+
