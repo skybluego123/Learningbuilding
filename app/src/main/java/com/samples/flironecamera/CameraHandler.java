@@ -18,6 +18,8 @@ import com.flir.thermalsdk.image.Point;
 import com.flir.thermalsdk.image.Rectangle;
 import com.flir.thermalsdk.image.ThermalImage;
 import com.flir.thermalsdk.image.fusion.FusionMode;
+import com.flir.thermalsdk.image.palettes.Palette;
+import com.flir.thermalsdk.image.palettes.PaletteManager;
 import com.flir.thermalsdk.live.Camera;
 import com.flir.thermalsdk.live.CommunicationInterface;
 import com.flir.thermalsdk.live.ConnectParameters;
@@ -222,6 +224,8 @@ class CameraHandler {
             Bitmap msxBitmap;
             {
                 thermalImage.getFusion().setFusionMode(FusionMode.THERMAL_ONLY);
+                Palette p = PaletteManager.getDefaultPalettes().get(0);
+                thermalImage.setPalette(p);
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();
                 //Log.d(TAG, msxBitmap.toString());
                 System.out.println(msxBitmap.getHeight()+ " " +msxBitmap.getWidth());
