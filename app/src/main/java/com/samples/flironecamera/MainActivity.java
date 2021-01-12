@@ -10,10 +10,15 @@
  * ******************************************************************/
 package com.samples.flironecamera;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,18 +65,47 @@ public class MainActivity extends AppCompatActivity {
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
+    private static double CutoffTemperature=-1;
+    EditText cutoffTemperatureInput;
     /**
      * Show message on the screen
      */
     public interface ShowMessage {
         void show(String message);
     }
+    public static double GetCutoffTemperature(){
+        return CutoffTemperature;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //links to input feild
+        cutoffTemperatureInput = findViewById(R.id.CutoffTermperatureInput);
+        //when user presses done we save the input
+        ((EditText)findViewById(R.id.CutoffTermperatureInput)).setOnEditorActionListener(
+                (v, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                            actionId == EditorInfo.IME_ACTION_DONE ||
+                            event != null &&
+                                    event.getAction() == KeyEvent.ACTION_DOWN &&
+                                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                        if (event == null || !event.isShiftPressed()) {
+                            // the user is done typing.
+                            //saves the input
+                            CutoffTemperature = Double.valueOf(cutoffTemperatureInput.getText().toString());
+                            System.out.println("input" + CutoffTemperature);
+                            //closes keyboard
+                            //v.setCursorVisible(false);
+                            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                            return true; // consume.
+                        }
+                    }
+                    return false; // pass on to other listeners.
+                }
+        );
         ThermalLog.LogLevel enableLoggingInDebug = BuildConfig.DEBUG ? ThermalLog.LogLevel.DEBUG : ThermalLog.LogLevel.NONE;
 
         //ThermalSdkAndroid has to be initiated from a Activity with the Application Context to prevent leaking Context,
@@ -177,8 +211,10 @@ public class MainActivity extends AppCompatActivity {
             try {
                 cameraHandler.connect(identity, connectionStatusListener);
                 runOnUiThread(() -> {
-                    updateConnectionText(identity, "CONNECTED");
+                    updateConnectionText(identity, "CONNECTING");
                     cameraHandler.startStream(streamDataListener);
+                    //updateConnectionText(identity, "CONNECTED");
+
                 });
             } catch (IOException e) {
                 runOnUiThread(() -> {
@@ -209,7 +245,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void updateConnectionText(Identity identity, String status) {
         String deviceId = identity != null ? identity.deviceId : "";
-        connectionStatus.setText(getString(R.string.connection_status_text, deviceId + " " + status));
+        //connectionStatus.setText(getString(R.string.connection_status_text, deviceId + " " + status));
+        connectionStatus.setText(status);
     }
 
     /**

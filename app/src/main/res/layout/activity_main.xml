@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    android:layout_margin="10dp"
     android:orientation="vertical"
-    android:layout_margin="10dp">
+    tools:context=".MainActivity">
 
     <!-- Title  -->
     <TextView
@@ -21,7 +21,7 @@
     <!-- Connect to FLIR ONE / Emulators buttons  -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="65dp">
 
         <Button
             android:id="@+id/connect_flir_one"
@@ -37,13 +37,21 @@
             android:onClick="disconnect"
             android:text="@string/disconnect_text" />
 
+        <EditText
+            android:id="@+id/CutoffTermperatureInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:cursorVisible="false"
+            android:ems="10"
+            android:inputType="number|numberDecimal" />
+
     </LinearLayout>
 
     <TextView
         android:id="@+id/connection_status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/connection_status_text"/>
+        android:text="@string/connection_status_text" />
 
     <LinearLayout
         android:layout_width="match_parent"

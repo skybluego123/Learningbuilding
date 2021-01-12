@@ -62,7 +62,6 @@ import static java.lang.Math.floor;
 class CameraHandler {
 
     private static final String TAG = "CameraHandler";
-
     private StreamDataListener streamDataListener;
 
     public interface StreamDataListener {
@@ -231,12 +230,12 @@ class CameraHandler {
                 System.out.println(msxBitmap.getHeight()+ " " +msxBitmap.getWidth());
                 System.out.println(thermalImage.getHeight()+ " " +thermalImage.getWidth());
 //                Log.d(TAG,thermalImage.getTemperatureUnit().toString());
-                double cutoff = 300;
+                //double cutoff = 300;
                 Rectangle rectangle = new Rectangle(0, 0, thermalImage.getWidth(), thermalImage.getHeight());
                 double[] all_temp = thermalImage.getValues(rectangle);
                 System.out.println(all_temp.length);
                 for (int i = 0; i < all_temp.length; i++) {
-                    if (all_temp[i] > cutoff) {
+                    if (all_temp[i] > MainActivity.GetCutoffTemperature()) {
                         msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()+1), -1);
                     }
 
