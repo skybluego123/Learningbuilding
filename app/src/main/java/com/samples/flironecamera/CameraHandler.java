@@ -233,10 +233,24 @@ class CameraHandler {
                 //double cutoff = 300;
                 Rectangle rectangle = new Rectangle(0, 0, thermalImage.getWidth(), thermalImage.getHeight());
                 double[] all_temp = thermalImage.getValues(rectangle);
-                System.out.println(all_temp.length);
+                //System.out.println(all_temp.length);
                 for (int i = 0; i < all_temp.length; i++) {
+                    if(i%10 == 0)
+                    {
+                        System.out.println(i + " " + all_temp[i]);
+                    }
                     if (all_temp[i] > MainActivity.GetCutoffTemperature()) {
-                        msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()+1), -1);
+                        //System.out.println("changed" + i % thermalImage.getWidth() + " "+ i / thermalImage.getHeight() + " "+ all_temp[i]);
+                        //Point pt = new Point(i % thermalImage.getWidth(),i / thermalImage.getHeight());
+                        //System.out.println(thermalImage.getValueAt(pt) + " "+ i);
+                        if(i % thermalImage.getWidth()%10==0 && i / (thermalImage.getHeight())%10==0 )
+                        {
+                            msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()), -1);
+                            System.out.println(i % thermalImage.getWidth()+" "+i / thermalImage.getHeight());
+                        }
+
+
+
                     }
 
                 }
@@ -264,7 +278,7 @@ class CameraHandler {
                 Bitmap dcBitmap = BitmapAndroid.createBitmap(thermalImage.getFusion().getPhoto()).getBitMap();
                 System.out.println(dcBitmap.getWidth()+" "+dcBitmap.getHeight());
                 Log.d(TAG, "adding images to cache");
-                streamDataListener.images(msxBitmap, dcBitmap);
+                streamDataListener.images(msxBitmap, msxBitmap);
             }
 
         }
