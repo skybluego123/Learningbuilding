@@ -234,20 +234,29 @@ class CameraHandler {
                 Rectangle rectangle = new Rectangle(0, 0, thermalImage.getWidth(), thermalImage.getHeight());
                 double[] all_temp = thermalImage.getValues(rectangle);
                 //System.out.println(all_temp.length);
+                System.out.println("------------------------");
+                for(int j=0;j<100;j++)
+                {
+                    System.out.println(all_temp[j] + " ");
+                }
+                System.out.println("\n swap \n");
+
+                for(int k=all_temp.length-100;k<all_temp.length;k++)
+                {
+                    System.out.println(all_temp[k] + " ");
+                }
+                System.out.println("------------------------");
+
                 for (int i = 0; i < all_temp.length; i++) {
-                    if(i%10 == 0)
-                    {
-                        System.out.println(i + " " + all_temp[i]);
-                    }
                     if (all_temp[i] > MainActivity.GetCutoffTemperature()) {
                         //System.out.println("changed" + i % thermalImage.getWidth() + " "+ i / thermalImage.getHeight() + " "+ all_temp[i]);
                         //Point pt = new Point(i % thermalImage.getWidth(),i / thermalImage.getHeight());
                         //System.out.println(thermalImage.getValueAt(pt) + " "+ i);
-                        if(i % thermalImage.getWidth()%10==0 && i / (thermalImage.getHeight())%10==0 )
-                        {
+                        //if(i % thermalImage.getWidth()%10==0 && i / (thermalImage.getHeight())%10==0 )
+                        //{
                             msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()), -1);
-                            System.out.println(i % thermalImage.getWidth()+" "+i / thermalImage.getHeight());
-                        }
+                            //System.out.println(i % thermalImage.getWidth()+" "+i / thermalImage.getHeight());
+                        //}
 
 
 
