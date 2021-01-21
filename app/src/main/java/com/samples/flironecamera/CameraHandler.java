@@ -224,7 +224,9 @@ class CameraHandler {
             {
                 thermalImage.getFusion().setFusionMode(FusionMode.THERMAL_ONLY);
                 Palette p = PaletteManager.getDefaultPalettes().get(0);
+                ColorDistribution c = ColorDistribution.TEMPERATURE_LINEAR;
                 thermalImage.setPalette(p);
+                thermalImage.setColorDistribution(c);
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();
                 //Log.d(TAG, msxBitmap.toString());
                 System.out.println(msxBitmap.getHeight()+ " " +msxBitmap.getWidth());
@@ -237,13 +239,13 @@ class CameraHandler {
                 System.out.println("------------------------");
                 for(int j=0;j<100;j++)
                 {
-                    System.out.println(all_temp[j] + " ");
+                    //System.out.println(all_temp[j] + " ");
                 }
                 System.out.println("\n swap \n");
 
                 for(int k=all_temp.length-100;k<all_temp.length;k++)
                 {
-                    System.out.println(all_temp[k] + " ");
+                    //System.out.println(all_temp[k] + " ");
                 }
                 System.out.println("------------------------");
 
@@ -287,7 +289,7 @@ class CameraHandler {
                 Bitmap dcBitmap = BitmapAndroid.createBitmap(thermalImage.getFusion().getPhoto()).getBitMap();
                 System.out.println(dcBitmap.getWidth()+" "+dcBitmap.getHeight());
                 Log.d(TAG, "adding images to cache");
-                streamDataListener.images(msxBitmap, msxBitmap);
+                streamDataListener.images(msxBitmap, dcBitmap);
             }
 
         }

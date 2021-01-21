@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
-    private static double CutoffTemperature=-1;
+    private static double CutoffTemperature=300;
     EditText cutoffTemperatureInput;
     /**
      * Show message on the screen
@@ -307,6 +307,9 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     //int[] pixels =  new int[0];
                     //dataHolder.msxBitmap.getPixels(pixels,0,0,0,0);
+                    //todo check this out
+                    //dataHolder.
+                    //dataHolder.msxBitmap.setPixel();
                     msxImage.setImageBitmap(dataHolder.msxBitmap);
                     //photoImage.setImageBitmap(dataHolder.dcBitmap);
                 }

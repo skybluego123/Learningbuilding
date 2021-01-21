@@ -43,7 +43,8 @@
             android:layout_height="wrap_content"
             android:cursorVisible="false"
             android:ems="10"
-            android:inputType="number|numberDecimal" />
+            android:inputType="number|numberDecimal"
+            android:text="300" />
 
     </LinearLayout>
 
@@ -59,8 +60,8 @@
 
         <ImageView
             android:id="@+id/msx_image"
-            android:layout_width="480dp"
-            android:layout_height="655dp"
+            android:layout_width="240dp"
+            android:layout_height="327.5dp"
             android:contentDescription="@string/image_with_ir_and_visual_data_mixed"
             android:maxWidth="50dp"
             android:minWidth="50dp" />
