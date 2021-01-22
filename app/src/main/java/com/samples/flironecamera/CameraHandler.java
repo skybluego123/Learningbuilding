@@ -16,8 +16,11 @@ import com.flir.thermalsdk.androidsdk.image.BitmapAndroid;
 import com.flir.thermalsdk.image.ColorDistribution;
 import com.flir.thermalsdk.image.Point;
 import com.flir.thermalsdk.image.Rectangle;
+import com.flir.thermalsdk.image.TemperatureUnit;
 import com.flir.thermalsdk.image.ThermalImage;
+import com.flir.thermalsdk.image.ThermalValue;
 import com.flir.thermalsdk.image.fusion.FusionMode;
+import com.flir.thermalsdk.image.fusion.ThermalFusion;
 import com.flir.thermalsdk.image.palettes.Palette;
 import com.flir.thermalsdk.image.palettes.PaletteManager;
 import com.flir.thermalsdk.live.Camera;
@@ -222,68 +225,41 @@ class CameraHandler {
             //Get a bitmap with only IR data
             Bitmap msxBitmap;
             {
+                //settings
                 thermalImage.getFusion().setFusionMode(FusionMode.THERMAL_ONLY);
-                Palette p = PaletteManager.getDefaultPalettes().get(0);
-                ColorDistribution c = ColorDistribution.TEMPERATURE_LINEAR;
-                thermalImage.setPalette(p);
-                thermalImage.setColorDistribution(c);
+                thermalImage.setPalette(PaletteManager.getDefaultPalettes().get(0));
+                thermalImage.setColorDistribution(ColorDistribution.HISTOGRAM_EQUALIZATION);
+
+                //creates the bitmap of temperature data
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();
-                //Log.d(TAG, msxBitmap.toString());
-                System.out.println(msxBitmap.getHeight()+ " " +msxBitmap.getWidth());
-                System.out.println(thermalImage.getHeight()+ " " +thermalImage.getWidth());
-//                Log.d(TAG,thermalImage.getTemperatureUnit().toString());
-                //double cutoff = 300;
+
+                //gets actual raw temp values
                 Rectangle rectangle = new Rectangle(0, 0, thermalImage.getWidth(), thermalImage.getHeight());
                 double[] all_temp = thermalImage.getValues(rectangle);
-                //System.out.println(all_temp.length);
-                System.out.println("------------------------");
-                for(int j=0;j<100;j++)
-                {
-                    //System.out.println(all_temp[j] + " ");
-                }
-                System.out.println("\n swap \n");
-
-                for(int k=all_temp.length-100;k<all_temp.length;k++)
-                {
-                    //System.out.println(all_temp[k] + " ");
-                }
-                System.out.println("------------------------");
-
-                for (int i = 0; i < all_temp.length; i++) {
-                    if (all_temp[i] > MainActivity.GetCutoffTemperature()) {
-                        //System.out.println("changed" + i % thermalImage.getWidth() + " "+ i / thermalImage.getHeight() + " "+ all_temp[i]);
-                        //Point pt = new Point(i % thermalImage.getWidth(),i / thermalImage.getHeight());
-                        //System.out.println(thermalImage.getValueAt(pt) + " "+ i);
-                        //if(i % thermalImage.getWidth()%10==0 && i / (thermalImage.getHeight())%10==0 )
-                        //{
-                            msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()), -1);
-                            //System.out.println(i % thermalImage.getWidth()+" "+i / thermalImage.getHeight());
-                        //}
-
-
-
+                double[][] temps = new double[thermalImage.getWidth()][thermalImage.getHeight()];
+                for (int i = 0; i < thermalImage.getWidth(); i++) {
+                    for(int j=0;j<thermalImage.getHeight();j++)
+                    {
+                        temps[i][j] = all_temp[j*thermalImage.getWidth() + i];
                     }
-
                 }
-//                for(int i =0;i<thermalImage.getWidth();i++)
-//                {
-//                    for(int j=0;j<thermalImage.getHeight();j++)
-//                    {
-//                        Point p = new Point(i,j);
-//                        if(thermalImage.getValueAt(p) > cutoff)
-//                        {
-//                            msxBitmap.setPixel(i,j,-1);
-//                        }
-////                        else
-////                        {
-////                            msxBitmap.setPixel(i,j,255);
-////                        }
+                for (int x = 0; x < thermalImage.getWidth(); x++) {
+                    for(int y=0;y<thermalImage.getHeight();y++)
+                    {
+                        if(temps[x][y] > MainActivity.GetCutoffTemperature())
+                        {
+                            msxBitmap.setPixel(x,y,-1);
+                        }
+                    }
+                }
+                //loops through and checks if the values are greater than our cutoff
+//                for (int i = 0; i < thermalImage.getWidth()*thermalImage.getHeight(); i++) {
+//                    if (all_temp[i] > MainActivity.GetCutoffTemperature()) {
+//                            msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()), -1);
 //                    }
-//                    System.out.println();
 //                }
+
 //
-//
-//            }
 
                 //Get a bitmap with the visual image, it might have different dimensions then the bitmap from THERMAL_ONLY
                 Bitmap dcBitmap = BitmapAndroid.createBitmap(thermalImage.getFusion().getPhoto()).getBitMap();
