@@ -61,7 +61,7 @@
         <ImageView
             android:id="@+id/msx_image"
             android:layout_width="240dp"
-            android:layout_height="327.5dp"
+            android:layout_height="240dp"
             android:contentDescription="@string/image_with_ir_and_visual_data_mixed"
             android:maxWidth="50dp"
             android:minWidth="50dp" />
