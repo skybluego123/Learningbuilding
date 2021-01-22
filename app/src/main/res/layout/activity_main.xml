@@ -8,20 +8,16 @@
     tools:context=".MainActivity">
 
     <!-- Title  -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/title_text"
-        android:textSize="20sp" />
-
-    <!-- Show SDK version  -->
-
-    <!-- Start / Stop discovery buttons  -->
-
-    <!-- Connect to FLIR ONE / Emulators buttons  -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp">
+        android:layout_height="44dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_text"
+            android:textSize="20sp" />
 
         <Button
             android:id="@+id/connect_flir_one"
@@ -36,15 +32,58 @@
             android:layout_height="match_parent"
             android:onClick="disconnect"
             android:text="@string/disconnect_text" />
+    </LinearLayout>
+
+    <!-- Show SDK version  -->
+
+    <!-- Start / Stop discovery buttons  -->
+
+    <!-- Connect to FLIR ONE / Emulators buttons  -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="65dp">
 
         <EditText
             android:id="@+id/CutoffTermperatureInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:cursorVisible="false"
             android:ems="10"
+            android:hint="Temparature \n(C)"
             android:inputType="number|numberDecimal"
-            android:text="300" />
+            android:textAlignment="center" />
+
+        <EditText
+            android:id="@+id/HumidityInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:cursorVisible="false"
+            android:ems="10"
+            android:hint="Humidity \n(%)"
+            android:inputType="number|numberDecimal" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dew Point"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="20sp" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -60,8 +99,8 @@
 
         <ImageView
             android:id="@+id/msx_image"
-            android:layout_width="240dp"
-            android:layout_height="240dp"
+            android:layout_width="375dp"
+            android:layout_height="590dp"
             android:contentDescription="@string/image_with_ir_and_visual_data_mixed"
             android:maxWidth="50dp"
             android:minWidth="50dp" />

@@ -226,6 +226,7 @@ class CameraHandler {
             Bitmap msxBitmap;
             {
                 //settings
+                thermalImage.setTemperatureUnit(TemperatureUnit.CELSIUS);
                 thermalImage.getFusion().setFusionMode(FusionMode.THERMAL_ONLY);
                 thermalImage.setPalette(PaletteManager.getDefaultPalettes().get(0));
                 thermalImage.setColorDistribution(ColorDistribution.HISTOGRAM_EQUALIZATION);
@@ -240,26 +241,13 @@ class CameraHandler {
                 for (int i = 0; i < thermalImage.getWidth(); i++) {
                     for(int j=0;j<thermalImage.getHeight();j++)
                     {
-                        temps[i][j] = all_temp[j*thermalImage.getWidth() + i];
-                    }
-                }
-                for (int x = 0; x < thermalImage.getWidth(); x++) {
-                    for(int y=0;y<thermalImage.getHeight();y++)
-                    {
-                        if(temps[x][y] > MainActivity.GetCutoffTemperature())
+                        if(all_temp[j*thermalImage.getWidth() + i] > MainActivity.GetCutoffTemperature())
                         {
-                            msxBitmap.setPixel(x,y,-1);
+                            msxBitmap.setPixel(i,j,-1);
                         }
                     }
                 }
-                //loops through and checks if the values are greater than our cutoff
-//                for (int i = 0; i < thermalImage.getWidth()*thermalImage.getHeight(); i++) {
-//                    if (all_temp[i] > MainActivity.GetCutoffTemperature()) {
-//                            msxBitmap.setPixel(i % thermalImage.getWidth(), i / (thermalImage.getHeight()), -1);
-//                    }
-//                }
 
-//
 
                 //Get a bitmap with the visual image, it might have different dimensions then the bitmap from THERMAL_ONLY
                 Bitmap dcBitmap = BitmapAndroid.createBitmap(thermalImage.getFusion().getPhoto()).getBitMap();

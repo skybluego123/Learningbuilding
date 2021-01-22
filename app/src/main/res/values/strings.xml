@@ -2,7 +2,7 @@
     <string name="app_name">FlirOneCamera</string>
     <string name="title_text">Thermal App</string>
     <string name="sdk_version_text">Thermal SDK version %1$s</string>
-    <string name="connect_f1_text">Connect\nFLIR ONE</string>
+    <string name="connect_f1_text">Connect</string>
     <string name="connect_sim1_text">Connect\nSimulator 1</string>
     <string name="connect_sim2_text">Connect\nSimulator 2</string>
     <string name="connection_status_text">Ready</string>

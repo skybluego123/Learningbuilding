@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
-    private static double CutoffTemperature=300;
+    private static double CutoffTemperature=400;
     EditText cutoffTemperatureInput;
     /**
      * Show message on the screen
