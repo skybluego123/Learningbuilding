@@ -65,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
-    private static double CutoffTemperature=298;
+    private static double CutoffTemperature=50;
     private static double CutoffHumidity=100;
-    private static double CutoffDewPoint=0;
+    private static double CutoffDewPoint=323.15;
 
     EditText cutoffTemperatureInput;
     EditText cutoffHumidityInput;
@@ -154,28 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-//        cutoffTemperatureInput.addTextChangedListener(new TextWatcher() {
-//
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                // TODO Auto-generated method stub
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                // TODO Auto-generated method stub
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//
-//                //here you are setting the data after the entry of temprature
-//                cutoffTemperatureInput.append("\u00B0");
-//
-//            }
-//        });
+
 
         ThermalLog.LogLevel enableLoggingInDebug = BuildConfig.DEBUG ? ThermalLog.LogLevel.DEBUG : ThermalLog.LogLevel.NONE;
 

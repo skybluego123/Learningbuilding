@@ -42,30 +42,69 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp">
+        android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/CutoffTermperatureInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:cursorVisible="false"
-            android:ems="10"
-            android:hint="Temparature \n(C)"
-            android:imeOptions="actionDone"
-            android:inputType="number|numberDecimal"
-            android:textAlignment="center" />
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/CutoffHumidityInput"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Temperature (C)"
+                android:textAlignment="center"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/CutoffTermperatureInput"
+                android:layout_width="wrap_content"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:cursorVisible="false"
+                android:ems="10"
+                android:hint="Temparature \n(C)"
+                android:imeOptions="actionDone"
+                android:inputType="number|numberDecimal"
+                android:text="50"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:cursorVisible="false"
-            android:imeOptions="actionDone"
-            android:ems="10"
-            android:hint="Humidity \n(%)"
-            android:inputType="number|numberDecimal" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Humidity (%)"
+                android:textAlignment="center"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/CutoffHumidityInput"
+                android:layout_width="wrap_content"
+                android:layout_height="54dp"
+                android:layout_weight="1"
+                android:cursorVisible="false"
+                android:ems="10"
+                android:hint="Humidity \n(%)"
+                android:imeOptions="actionDone"
+                android:inputType="number|numberDecimal"
+                android:text="100"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -77,13 +116,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dew Point"
-                android:textSize="20sp" />
+                android:textAlignment="center"
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/DewPointDisplay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="50"
+                android:textAlignment="center"
                 android:textSize="20sp" />
         </LinearLayout>
 
