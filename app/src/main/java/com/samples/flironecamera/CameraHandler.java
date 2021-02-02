@@ -241,7 +241,7 @@ class CameraHandler {
                 for (int i = 0; i < thermalImage.getWidth(); i++) {
                     for(int j=0;j<thermalImage.getHeight();j++)
                     {
-                        if(all_temp[j*thermalImage.getWidth() + i] > MainActivity.GetCutoffTemperature())
+                        if(all_temp[j*thermalImage.getWidth() + i] > MainActivity.GetCutoffDewPoint())
                         {
                             msxBitmap.setPixel(i,j,-1);
                         }

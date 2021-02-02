@@ -57,34 +57,71 @@ public class MainActivity extends AppCompatActivity {
 
     private Identity connectedIdentity = null;
     private TextView connectionStatus;
-    private TextView discoveryStatus;
 
     private ImageView msxImage;
-    private ImageView photoImage;
 
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
-    private static double CutoffTemperature=400;
+    private static double CutoffTemperature=298;
+    private static double CutoffHumidity=100;
+    private static double CutoffDewPoint=0;
+
     EditText cutoffTemperatureInput;
+    EditText cutoffHumidityInput;
     /**
      * Show message on the screen
      */
     public interface ShowMessage {
         void show(String message);
     }
-    public static double GetCutoffTemperature(){
-        return CutoffTemperature;
+//    public static double GetCutoffTemperature(){
+//        return CutoffTemperature;
+//    }
+//    public static double GetCutoffHumidity(){
+//        return CutoffHumidity;
+//    }
+    public static double GetCutoffDewPoint(){
+        return CutoffDewPoint;
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //links to input feild
         cutoffTemperatureInput = findViewById(R.id.CutoffTermperatureInput);
-        //when user presses done we save the input
+        cutoffHumidityInput = findViewById(R.id.CutoffHumidityInput);
+
+        //when user presses done for temperature we save the input
         ((EditText)findViewById(R.id.CutoffTermperatureInput)).setOnEditorActionListener(
+                (v, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                            actionId == EditorInfo.IME_ACTION_NEXT ||
+                            event != null &&
+                                    event.getAction() == KeyEvent.ACTION_DOWN &&
+                                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                        if (event == null || !event.isShiftPressed()) {
+                            // the user is done typing.
+                            //saves the input
+                            CutoffTemperature = Double.valueOf(cutoffTemperatureInput.getText().toString()) + 273.15;
+                            System.out.println("temp input" + CutoffTemperature);
+                            //closes keyboard
+                            //v.setCursorVisible(false);
+                            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                            //updates dew point
+                            CutoffDewPoint = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*CutoffTemperature)) + ((.1 * CutoffTemperature) -112));
+                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(""+CutoffDewPoint);
+                            return true; // consume.
+                        }
+                    }
+                    return false; // pass on to other listeners.
+                }
+        );
+
+        //when user presses done for humidity we save the input
+        ((EditText)findViewById(R.id.CutoffHumidityInput)).setOnEditorActionListener(
                 (v, actionId, event) -> {
                     if (actionId == EditorInfo.IME_ACTION_SEARCH ||
                             actionId == EditorInfo.IME_ACTION_DONE ||
@@ -94,18 +131,27 @@ public class MainActivity extends AppCompatActivity {
                         if (event == null || !event.isShiftPressed()) {
                             // the user is done typing.
                             //saves the input
-                            CutoffTemperature = Double.valueOf(cutoffTemperatureInput.getText().toString());
-                            System.out.println("input" + CutoffTemperature);
+                            CutoffHumidity = Double.valueOf(cutoffHumidityInput.getText().toString());
+                            System.out.println("Humidity input" + CutoffHumidity);
                             //closes keyboard
                             //v.setCursorVisible(false);
                             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                            //calculate dew point
+                            CutoffDewPoint = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*CutoffTemperature)) + ((.1 * CutoffTemperature) -112));
+                            double CutoffDewPointCelcius = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*(CutoffTemperature-273.15))) + ((.1 * (CutoffTemperature-273.15)) -112));
+
+                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(""+CutoffDewPointCelcius);
                             return true; // consume.
                         }
                     }
                     return false; // pass on to other listeners.
                 }
         );
+
+
+
         ThermalLog.LogLevel enableLoggingInDebug = BuildConfig.DEBUG ? ThermalLog.LogLevel.DEBUG : ThermalLog.LogLevel.NONE;
 
         //ThermalSdkAndroid has to be initiated from a Activity with the Application Context to prevent leaking Context,

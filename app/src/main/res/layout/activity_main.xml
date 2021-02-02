@@ -52,15 +52,17 @@
             android:cursorVisible="false"
             android:ems="10"
             android:hint="Temparature \n(C)"
+            android:imeOptions="actionNext"
             android:inputType="number|numberDecimal"
             android:textAlignment="center" />
 
         <EditText
-            android:id="@+id/HumidityInput"
+            android:id="@+id/CutoffHumidityInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:cursorVisible="false"
+            android:imeOptions="actionDone"
             android:ems="10"
             android:hint="Humidity \n(%)"
             android:inputType="number|numberDecimal" />
@@ -78,7 +80,7 @@
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/textView3"
+                android:id="@+id/DewPointDisplay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="0"
