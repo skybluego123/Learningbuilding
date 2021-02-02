@@ -13,6 +13,8 @@ package com.samples.flironecamera;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -112,7 +114,10 @@ public class MainActivity extends AppCompatActivity {
 
                             //updates dew point
                             CutoffDewPoint = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*CutoffTemperature)) + ((.1 * CutoffTemperature) -112));
-                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(""+CutoffDewPoint);
+                            double CutoffDewPointCelcius = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*(CutoffTemperature-273.15))) + ((.1 * (CutoffTemperature-273.15)) -112));
+                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n",CutoffDewPointCelcius));
+
+
                             return true; // consume.
                         }
                     }
@@ -141,8 +146,7 @@ public class MainActivity extends AppCompatActivity {
                             //calculate dew point
                             CutoffDewPoint = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*CutoffTemperature)) + ((.1 * CutoffTemperature) -112));
                             double CutoffDewPointCelcius = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*(CutoffTemperature-273.15))) + ((.1 * (CutoffTemperature-273.15)) -112));
-
-                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(""+CutoffDewPointCelcius);
+                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n",CutoffDewPointCelcius));
                             return true; // consume.
                         }
                     }
@@ -150,7 +154,28 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-
+//        cutoffTemperatureInput.addTextChangedListener(new TextWatcher() {
+//
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//                //here you are setting the data after the entry of temprature
+//                cutoffTemperatureInput.append("\u00B0");
+//
+//            }
+//        });
 
         ThermalLog.LogLevel enableLoggingInDebug = BuildConfig.DEBUG ? ThermalLog.LogLevel.DEBUG : ThermalLog.LogLevel.NONE;
 
