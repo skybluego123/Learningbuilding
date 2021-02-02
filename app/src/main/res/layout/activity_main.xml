@@ -52,7 +52,7 @@
             android:cursorVisible="false"
             android:ems="10"
             android:hint="Temparature \n(C)"
-            android:imeOptions="actionNext"
+            android:imeOptions="actionDone"
             android:inputType="number|numberDecimal"
             android:textAlignment="center" />
 

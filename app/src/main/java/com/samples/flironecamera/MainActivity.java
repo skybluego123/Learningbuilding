@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         ((EditText)findViewById(R.id.CutoffTermperatureInput)).setOnEditorActionListener(
                 (v, actionId, event) -> {
                     if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                            actionId == EditorInfo.IME_ACTION_NEXT ||
+                            actionId == EditorInfo.IME_ACTION_DONE ||
                             event != null &&
                                     event.getAction() == KeyEvent.ACTION_DOWN &&
                                     event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
