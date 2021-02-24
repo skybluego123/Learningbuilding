@@ -71,8 +71,10 @@ class CameraHandler {
 
     public interface StreamDataListener {
         void images(FrameDataHolder dataHolder);
-
         void images(Bitmap msxBitmap, Bitmap dcBitmap);
+        void images(Bitmap msxBitmap, Bitmap dcBitmap,Double MinTemp,Double MaxTemp);
+
+
     }
 
     //Discovered FLIR cameras
@@ -235,9 +237,8 @@ class CameraHandler {
 
                 //sets scale
                 Scale scale = thermalImage.getScale();
-                double min = Double.parseDouble(String.valueOf(scale.getRangeMin()).substring(0,3));
-                double max = Double.parseDouble(String.valueOf(scale.getRangeMax()).substring(0,3));
-                final TextView mTextView = (TextView) findViewById(R.id.MinimumC);
+                double minC = Double.parseDouble(String.valueOf(scale.getRangeMin()).substring(0,3));
+                double maxC = Double.parseDouble(String.valueOf(scale.getRangeMax()).substring(0,3));
 
                 //creates the bitmap of temperature data
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();
@@ -261,7 +262,7 @@ class CameraHandler {
                 Bitmap dcBitmap = BitmapAndroid.createBitmap(thermalImage.getFusion().getPhoto()).getBitMap();
                 System.out.println(dcBitmap.getWidth()+" "+dcBitmap.getHeight());
                 Log.d(TAG, "adding images to cache");
-                streamDataListener.images(msxBitmap, dcBitmap);
+                streamDataListener.images(msxBitmap, dcBitmap,minC,maxC);
             }
 
         }

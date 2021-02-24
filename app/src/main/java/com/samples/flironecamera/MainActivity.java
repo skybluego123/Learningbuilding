@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Identity connectedIdentity = null;
     private TextView connectionStatus;
+    private TextView minTemperature;
+    private TextView maxTemperature;
 
     private ImageView msxImage;
 
@@ -376,6 +378,30 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }
+        @Override
+        public void images(Bitmap msxBitmap, Bitmap dcBitmap,Double minC, Double maxC) {
+
+            try {
+                Log.d(TAG,"loading bitmap");
+                framesBuffer.put(new FrameDataHolder(msxBitmap,dcBitmap));
+            } catch (InterruptedException e) {
+                //if interrupted while waiting for adding a new item in the queue
+                Log.e(TAG,"images(), unable to add incoming images to frames buffer, exception:"+e);
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG,"framebuffer size:"+framesBuffer.size());
+                    FrameDataHolder poll = framesBuffer.poll();
+                    msxImage.setImageBitmap(poll.msxBitmap);
+                    minTemperature.setText(String.valueOf(minC));
+                    maxTemperature.setText(String.valueOf(maxC));
+                    //photoImage.setImageBitmap(poll.dcBitmap);
+                }
+            });
+
+        }
     };
 
     /**
@@ -425,7 +451,8 @@ public class MainActivity extends AppCompatActivity {
     private void setupViews() {
         connectionStatus = findViewById(R.id.connection_status_text);
         //discoveryStatus = findViewById(R.id.discovery_status);
-
+        minTemperature = findViewById(R.id.MinimumC);
+        maxTemperature = findViewById(R.id.MaximumC);
         msxImage = findViewById(R.id.msx_image);
         //photoImage = findViewById(R.id.photo_image);
     }
