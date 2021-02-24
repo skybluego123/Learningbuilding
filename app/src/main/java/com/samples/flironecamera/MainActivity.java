@@ -395,8 +395,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG,"framebuffer size:"+framesBuffer.size());
                     FrameDataHolder poll = framesBuffer.poll();
                     msxImage.setImageBitmap(poll.msxBitmap);
-                    minTemperature.setText(String.valueOf(minC));
-                    maxTemperature.setText(String.valueOf(maxC));
+                    if(maxC > -8)
+                    {
+                        minTemperature.setText(String.valueOf(minC));
+                        maxTemperature.setText(String.valueOf(maxC));
+                    }
+
                     //photoImage.setImageBitmap(poll.dcBitmap);
                 }
             });

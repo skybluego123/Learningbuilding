@@ -144,7 +144,6 @@
             android:layout_width="85dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="0.00"
             android:textAlignment="center" />
 
         <ImageView
@@ -163,7 +162,6 @@
             android:layout_width="85dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="100"
             android:textAlignment="center" />
 
     </LinearLayout>
