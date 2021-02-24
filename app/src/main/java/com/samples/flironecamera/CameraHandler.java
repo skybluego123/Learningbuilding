@@ -231,6 +231,8 @@ class CameraHandler {
                 thermalImage.setPalette(PaletteManager.getDefaultPalettes().get(0));
                 thermalImage.setColorDistribution(ColorDistribution.HISTOGRAM_EQUALIZATION);
 
+                System.out.println("scale" + thermalImage.getScale());
+
                 //creates the bitmap of temperature data
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();
 
@@ -241,7 +243,7 @@ class CameraHandler {
                 for (int i = 0; i < thermalImage.getWidth(); i++) {
                     for(int j=0;j<thermalImage.getHeight();j++)
                     {
-                        if(all_temp[j*thermalImage.getWidth() + i] > MainActivity.GetCutoffDewPoint())
+                        if(all_temp[j*thermalImage.getWidth() + i] < MainActivity.GetCutoffDewPoint())
                         {
                             msxBitmap.setPixel(i,j,-1);
                         }
