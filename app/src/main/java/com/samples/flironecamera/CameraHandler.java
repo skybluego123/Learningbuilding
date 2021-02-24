@@ -237,8 +237,8 @@ class CameraHandler {
 
                 //sets scale
                 Scale scale = thermalImage.getScale();
-                double minC = Double.parseDouble(String.valueOf(scale.getRangeMin()).substring(0,3));
-                double maxC = Double.parseDouble(String.valueOf(scale.getRangeMax()).substring(0,3));
+                double minC = Double.parseDouble(String.valueOf(scale.getRangeMin()).substring(0,4));
+                double maxC = Double.parseDouble(String.valueOf(scale.getRangeMax()).substring(0,4));
 
                 //creates the bitmap of temperature data
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();
