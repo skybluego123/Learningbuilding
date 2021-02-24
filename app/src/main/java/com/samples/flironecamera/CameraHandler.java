@@ -10,8 +10,12 @@
 package com.samples.flironecamera;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import com.flir.thermalsdk.androidsdk.image.BitmapAndroid;
 import com.flir.thermalsdk.image.ColorDistribution;
@@ -220,6 +224,7 @@ class CameraHandler {
      * Function to process a Thermal Image and update UI
      */
     private final Camera.Consumer<ThermalImage> handleIncomingImage = new Camera.Consumer<ThermalImage>() {
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void accept(ThermalImage thermalImage) {
             Log.d(TAG, "accept() called with: thermalImage = [" + thermalImage.getDescription() + "]");
@@ -234,6 +239,7 @@ class CameraHandler {
                 thermalImage.getFusion().setFusionMode(FusionMode.THERMAL_ONLY);
                 thermalImage.setPalette(PaletteManager.getDefaultPalettes().get(0));
                 thermalImage.setColorDistribution(ColorDistribution.HISTOGRAM_EQUALIZATION);
+                int lightBlue = Color.parseColor("#add8e6");
 
                 //sets scale
                 Scale scale = thermalImage.getScale();
@@ -252,7 +258,7 @@ class CameraHandler {
                     {
                         if(all_temp[j*thermalImage.getWidth() + i] < MainActivity.GetCutoffDewPoint())
                         {
-                            msxBitmap.setPixel(i,j,-1);
+                            msxBitmap.setPixel(i,j, lightBlue);
                         }
                     }
                 }
