@@ -73,7 +73,7 @@
                 android:hint="Temparature \n(C)"
                 android:imeOptions="actionDone"
                 android:inputType="number|numberDecimal"
-                android:text="50"
+                android:text="20"
                 android:textAlignment="center"
                 android:textSize="20sp" />
 
@@ -127,7 +127,7 @@
                 android:id="@+id/DewPointDisplay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="50"
+                android:text="20"
                 android:textAlignment="center"
                 android:textSize="20sp" />
         </LinearLayout>
@@ -140,11 +140,11 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/MinimumC"
             android:layout_width="85dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="10.2"
+            android:text="0.00"
             android:textAlignment="center" />
 
         <ImageView
@@ -159,11 +159,11 @@
             app:srcCompat="@drawable/color_pallate" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/MaximumC"
             android:layout_width="85dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="39.1"
+            android:text="100"
             android:textAlignment="center" />
 
     </LinearLayout>

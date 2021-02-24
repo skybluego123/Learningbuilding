@@ -11,11 +11,13 @@ package com.samples.flironecamera;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.flir.thermalsdk.androidsdk.image.BitmapAndroid;
 import com.flir.thermalsdk.image.ColorDistribution;
 import com.flir.thermalsdk.image.Point;
 import com.flir.thermalsdk.image.Rectangle;
+import com.flir.thermalsdk.image.Scale;
 import com.flir.thermalsdk.image.TemperatureUnit;
 import com.flir.thermalsdk.image.ThermalImage;
 import com.flir.thermalsdk.image.ThermalValue;
@@ -231,7 +233,11 @@ class CameraHandler {
                 thermalImage.setPalette(PaletteManager.getDefaultPalettes().get(0));
                 thermalImage.setColorDistribution(ColorDistribution.HISTOGRAM_EQUALIZATION);
 
-                System.out.println("scale" + thermalImage.getScale());
+                //sets scale
+                Scale scale = thermalImage.getScale();
+                double min = Double.parseDouble(String.valueOf(scale.getRangeMin()).substring(0,3));
+                double max = Double.parseDouble(String.valueOf(scale.getRangeMax()).substring(0,3));
+                final TextView mTextView = (TextView) findViewById(R.id.MinimumC);
 
                 //creates the bitmap of temperature data
                 msxBitmap = BitmapAndroid.createBitmap(thermalImage.getImage()).getBitMap();

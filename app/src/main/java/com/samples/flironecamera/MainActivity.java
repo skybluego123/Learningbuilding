@@ -65,9 +65,9 @@ public class MainActivity extends AppCompatActivity {
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
-    private static double CutoffTemperature=50;
+    private static double CutoffTemperature=20;
     private static double CutoffHumidity=100;
-    private static double CutoffDewPoint=323.15;
+    private static double CutoffDewPoint=293.15;
 
     EditText cutoffTemperatureInput;
     EditText cutoffHumidityInput;
@@ -77,12 +77,7 @@ public class MainActivity extends AppCompatActivity {
     public interface ShowMessage {
         void show(String message);
     }
-//    public static double GetCutoffTemperature(){
-//        return CutoffTemperature;
-//    }
-//    public static double GetCutoffHumidity(){
-//        return CutoffHumidity;
-//    }
+
     public static double GetCutoffDewPoint(){
         return CutoffDewPoint;
     }
@@ -351,17 +346,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void images(FrameDataHolder dataHolder) {
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //int[] pixels =  new int[0];
-                    //dataHolder.msxBitmap.getPixels(pixels,0,0,0,0);
-                    //todo check this out
-                    //dataHolder.
-                    //dataHolder.msxBitmap.setPixel();
                     msxImage.setImageBitmap(dataHolder.msxBitmap);
-                    //photoImage.setImageBitmap(dataHolder.dcBitmap);
                 }
             });
         }
