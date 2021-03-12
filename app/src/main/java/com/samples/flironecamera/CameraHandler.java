@@ -239,7 +239,7 @@ class CameraHandler {
                 thermalImage.getFusion().setFusionMode(FusionMode.THERMAL_ONLY);
                 thermalImage.setPalette(PaletteManager.getDefaultPalettes().get(0));
                 thermalImage.setColorDistribution(ColorDistribution.HISTOGRAM_EQUALIZATION);
-                int lightBlue = Color.parseColor("#add8e6");
+                int red = Color.parseColor("#ae0700");
                 int neonGreen = Color.parseColor("#39ff14");
 
                 //sets scale
@@ -254,12 +254,20 @@ class CameraHandler {
                 Rectangle rectangle = new Rectangle(0, 0, thermalImage.getWidth(), thermalImage.getHeight());
                 double[] all_temp = thermalImage.getValues(rectangle);
                 double[][] temps = new double[thermalImage.getWidth()][thermalImage.getHeight()];
-                for (int i = 0; i < thermalImage.getWidth(); i+=3) {
-                    for(int j=0;j<thermalImage.getHeight();j+=3)
+                int dotsize = 3;
+                //loop every 9 pixels
+                for (int i = 0; i < thermalImage.getWidth()-dotsize; i+=9) {
+                    for(int j=0;j<thermalImage.getHeight()-dotsize;j+=9)
                     {
                         if(all_temp[j*thermalImage.getWidth() + i] < MainActivity.GetCutoffDewPoint())
                         {
-                            msxBitmap.setPixel(i,j, neonGreen);
+                            //makes a three by three green dot
+                            for(int x=0;x<dotsize;x++)
+                            {
+                                for(int y=0;y<dotsize;y++) {
+                                    msxBitmap.setPixel(i+x,j+y, neonGreen);
+                                }
+                            }
                         }
                     }
                 }

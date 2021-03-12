@@ -86,6 +86,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //testing
+        SensorHandler s = new SensorHandler();
+
+
+
+
+
         setContentView(R.layout.activity_main);
         //links to input feild
         cutoffTemperatureInput = findViewById(R.id.CutoffTermperatureInput);
@@ -453,6 +460,9 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void setupViews() {
+        ProcessingService s = new ProcessingService();
+        s.onCreate();
+        System.out.println("s initilized");
         connectionStatus = findViewById(R.id.connection_status_text);
         //discoveryStatus = findViewById(R.id.discovery_status);
         minTemperature = findViewById(R.id.MinimumC);
