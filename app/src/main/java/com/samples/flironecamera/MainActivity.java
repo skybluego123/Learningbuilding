@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.flir.thermalsdk.ErrorCode;
 import com.flir.thermalsdk.androidsdk.ThermalSdkAndroid;
 import com.flir.thermalsdk.androidsdk.live.connectivity.UsbPermissionHandler;
@@ -32,10 +33,13 @@ import com.flir.thermalsdk.live.Identity;
 import com.flir.thermalsdk.live.connectivity.ConnectionStatusListener;
 import com.flir.thermalsdk.live.discovery.DiscoveryEventListener;
 import com.flir.thermalsdk.log.ThermalLog;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -67,12 +71,14 @@ public class MainActivity extends AppCompatActivity {
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
-    private static double CutoffTemperature=20;
-    private static double CutoffHumidity=100;
-    private static double CutoffDewPoint=293.15;
+    private static double CutoffTemperature = 20;
+    private static double CutoffHumidity = 100;
+    private static double CutoffDewPoint = 293.15;
 
+    private Boolean newData = false;
     EditText cutoffTemperatureInput;
     EditText cutoffHumidityInput;
+
     /**
      * Show message on the screen
      */
@@ -80,17 +86,15 @@ public class MainActivity extends AppCompatActivity {
         void show(String message);
     }
 
-    public static double GetCutoffDewPoint(){
+    public static double GetCutoffDewPoint() {
         return CutoffDewPoint;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //testing
         SensorHandler s = new SensorHandler();
-
-
-
 
 
         setContentView(R.layout.activity_main);
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         cutoffHumidityInput = findViewById(R.id.CutoffHumidityInput);
 
         //when user presses done for temperature we save the input
-        ((EditText)findViewById(R.id.CutoffTermperatureInput)).setOnEditorActionListener(
+        ((EditText) findViewById(R.id.CutoffTermperatureInput)).setOnEditorActionListener(
                 (v, actionId, event) -> {
                     if (actionId == EditorInfo.IME_ACTION_SEARCH ||
                             actionId == EditorInfo.IME_ACTION_DONE ||
@@ -113,13 +117,13 @@ public class MainActivity extends AppCompatActivity {
                             System.out.println("temp input" + CutoffTemperature);
                             //closes keyboard
                             //v.setCursorVisible(false);
-                            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
                             //updates dew point
-                            CutoffDewPoint = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*CutoffTemperature)) + ((.1 * CutoffTemperature) -112));
-                            double CutoffDewPointCelcius = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*(CutoffTemperature-273.15))) + ((.1 * (CutoffTemperature-273.15)) -112));
-                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n",CutoffDewPointCelcius));
+                            CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+                            double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
+                            ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
 
 
                             return true; // consume.
@@ -130,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         //when user presses done for humidity we save the input
-        ((EditText)findViewById(R.id.CutoffHumidityInput)).setOnEditorActionListener(
+        ((EditText) findViewById(R.id.CutoffHumidityInput)).setOnEditorActionListener(
                 (v, actionId, event) -> {
                     if (actionId == EditorInfo.IME_ACTION_SEARCH ||
                             actionId == EditorInfo.IME_ACTION_DONE ||
@@ -144,20 +148,19 @@ public class MainActivity extends AppCompatActivity {
                             System.out.println("Humidity input" + CutoffHumidity);
                             //closes keyboard
                             //v.setCursorVisible(false);
-                            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
                             //calculate dew point
-                            CutoffDewPoint = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*CutoffTemperature)) + ((.1 * CutoffTemperature) -112));
-                            double CutoffDewPointCelcius = ( (Math.pow((CutoffHumidity/100),1.0/8.0) * (112+ .9*(CutoffTemperature-273.15))) + ((.1 * (CutoffTemperature-273.15)) -112));
-                            ((TextView)findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n",CutoffDewPointCelcius));
+                            CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+                            double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
+                            ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
                             return true; // consume.
                         }
                     }
                     return false; // pass on to other listeners.
                 }
         );
-
 
 
         ThermalLog.LogLevel enableLoggingInDebug = BuildConfig.DEBUG ? ThermalLog.LogLevel.DEBUG : ThermalLog.LogLevel.NONE;
@@ -172,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         cameraHandler = new CameraHandler();
 
         setupViews();
+        startMultithreading();
 
         //showSDKversion(ThermalSdkAndroid.getVersion());
     }
@@ -256,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void error(UsbPermissionHandler.UsbPermissionListener.ErrorType errorType, final Identity identity) {
-            MainActivity.this.showMessage.show("Error when asking for permission for FLIR ONE, error:"+errorType+ " identity:" +identity);
+            MainActivity.this.showMessage.show("Error when asking for permission for FLIR ONE, error:" + errorType + " identity:" + identity);
         }
     };
 
@@ -289,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             cameraHandler.disconnect();
             runOnUiThread(() -> {
-                    updateConnectionText(null, "DISCONNECTED");
+                updateConnectionText(null, "DISCONNECTED");
             });
         }).start();
     }
@@ -367,17 +371,17 @@ public class MainActivity extends AppCompatActivity {
         public void images(Bitmap msxBitmap, Bitmap dcBitmap) {
 
             try {
-                Log.d(TAG,"loading bitmap");
-                framesBuffer.put(new FrameDataHolder(msxBitmap,dcBitmap));
+                Log.d(TAG, "loading bitmap");
+                framesBuffer.put(new FrameDataHolder(msxBitmap, dcBitmap));
             } catch (InterruptedException e) {
                 //if interrupted while waiting for adding a new item in the queue
-                Log.e(TAG,"images(), unable to add incoming images to frames buffer, exception:"+e);
+                Log.e(TAG, "images(), unable to add incoming images to frames buffer, exception:" + e);
             }
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG,"framebuffer size:"+framesBuffer.size());
+                    Log.d(TAG, "framebuffer size:" + framesBuffer.size());
                     FrameDataHolder poll = framesBuffer.poll();
                     msxImage.setImageBitmap(poll.msxBitmap);
                     //photoImage.setImageBitmap(poll.dcBitmap);
@@ -385,25 +389,25 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }
+
         @Override
-        public void images(Bitmap msxBitmap, Bitmap dcBitmap,Double minC, Double maxC) {
+        public void images(Bitmap msxBitmap, Bitmap dcBitmap, Double minC, Double maxC) {
 
             try {
-                Log.d(TAG,"loading bitmap");
-                framesBuffer.put(new FrameDataHolder(msxBitmap,dcBitmap));
+                Log.d(TAG, "loading bitmap");
+                framesBuffer.put(new FrameDataHolder(msxBitmap, dcBitmap));
             } catch (InterruptedException e) {
                 //if interrupted while waiting for adding a new item in the queue
-                Log.e(TAG,"images(), unable to add incoming images to frames buffer, exception:"+e);
+                Log.e(TAG, "images(), unable to add incoming images to frames buffer, exception:" + e);
             }
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG,"framebuffer size:"+framesBuffer.size());
+                    Log.d(TAG, "framebuffer size:" + framesBuffer.size());
                     FrameDataHolder poll = framesBuffer.poll();
                     msxImage.setImageBitmap(poll.msxBitmap);
-                    if(maxC > -8)
-                    {
+                    if (maxC > -8) {
                         minTemperature.setText(String.valueOf(minC));
                         maxTemperature.setText(String.valueOf(maxC));
                     }
@@ -460,8 +464,9 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void setupViews() {
-        ProcessingService s = new ProcessingService();
-        s.onCreate();
+//        ProcessingService s = new ProcessingService();
+//        s.onCreate();
+
         System.out.println("s initilized");
         connectionStatus = findViewById(R.id.connection_status_text);
         //discoveryStatus = findViewById(R.id.discovery_status);
@@ -471,9 +476,48 @@ public class MainActivity extends AppCompatActivity {
         //photoImage = findViewById(R.id.photo_image);
     }
 
-    public void showToast(final String toast)
-    {
-        runOnUiThread(() -> Toast.makeText(MainActivity.this, toast, Toast.LENGTH_SHORT).show());
+    public void startMultithreading() {
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(1000);
+                        System.out.println("trying to auth");
+                        String key = SensorHandler.Authenticate();
+                        System.out.println("trying to read");
+                        ArrayList<Double> output = SensorHandler.QuerySamples(key);
+                        newData=true;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(newData == true)
+                                {
+                                    updateUIFromSensor(output.get(0),output.get(1));
+                                    newData = false;
+                                }
+                            }
+                        });
+                    }
+                } catch (InterruptedException | IOException e) {
+                }
+            }
+        };
+
+        t.start();
+    }
+
+
+    private void updateUIFromSensor(Double temperature, Double humidity) {
+        CutoffTemperature = temperature;
+        CutoffHumidity = humidity;
+        CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+        double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
+        ((TextView) findViewById(R.id.CutoffHumidityInput)).setText(String.format("%.1f %n", CutoffHumidity));
+        ((TextView) findViewById(R.id.CutoffTermperatureInput)).setText(String.format("%.1f %n", CutoffTemperature));
+
+        ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
     }
 
 }
+

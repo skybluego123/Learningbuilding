@@ -86,6 +86,7 @@ public class SensorHandler {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    System.out.println("authenticated");
     return oauthtoken;
     }
 
@@ -130,7 +131,7 @@ public class SensorHandler {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return new ArrayList<Double>();
+        return readings;
     }
 
 

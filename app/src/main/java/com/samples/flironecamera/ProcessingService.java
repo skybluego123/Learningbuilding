@@ -14,6 +14,8 @@ public class ProcessingService extends Service {
     private Timer timer = new Timer();
 
 
+
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -26,13 +28,10 @@ public class ProcessingService extends Service {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                try {
-                    String key = SensorHandler.Authenticate();
-                    ArrayList<Double> output = SensorHandler.QuerySamples(key);
-                    MainActivity.showToast("test"+ output.get(0) +" "+ output.get(1));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("test");
+                //String key = SensorHandler.Authenticate();
+                //ArrayList<Double> output = SensorHandler.QuerySamples(key);
+//                    MainActivity.showToast("test"+ output.get(0) +" "+ output.get(1));
             }
         }, 0, 5000);//5 Seconds
     }
