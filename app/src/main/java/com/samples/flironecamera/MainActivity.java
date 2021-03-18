@@ -22,6 +22,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -96,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //testing
-        SensorHandler s = new SensorHandler();
 
 
         setContentView(R.layout.activity_main);
@@ -485,24 +485,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    while (isUpdatingFromSensor && !isInterrupted()) {
+                    while (!isInterrupted()) {
                         Thread.sleep(1000);
-                        //doing all the actual work
-                        String key = SensorHandler.Authenticate();
-                        ArrayList<Double> output = SensorHandler.QuerySamples(key);
-                        //thread saftey
-                        newData=true;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(newData == true)
-                                {
-                                    //update UI on UI thread
-                                    updateUIFromSensor(output.get(0),output.get(1));
-                                    newData = false;
+                        Switch s = (Switch) findViewById(R.id.switch1);
+
+                        while (s.isChecked()) {
+                            //doing all the actual work
+                            String key = SensorHandler.Authenticate();
+                            ArrayList<Double> output = SensorHandler.QuerySamples(key);
+                            //thread saftey
+                            newData = true;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (newData == true) {
+                                        //update UI on UI thread
+                                        updateUIFromSensor(output.get(0), output.get(1));
+                                        newData = false;
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+
+
                     }
                 } catch (InterruptedException | IOException e) {
                 }
@@ -514,14 +519,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void updateUIFromSensor(Double temperature, Double humidity) {
-        CutoffTemperature = temperature;
+        CutoffTemperature = (temperature - 32) * (5.0 / 9.0);
         CutoffHumidity = humidity;
         CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
-        double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
         ((TextView) findViewById(R.id.CutoffHumidityInput)).setText(String.format("%.1f %n", CutoffHumidity));
         ((TextView) findViewById(R.id.CutoffTermperatureInput)).setText(String.format("%.1f %n", CutoffTemperature));
-
-        ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
+        ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPoint));
     }
 
 }
