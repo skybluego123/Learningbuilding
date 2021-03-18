@@ -471,4 +471,9 @@ public class MainActivity extends AppCompatActivity {
         //photoImage = findViewById(R.id.photo_image);
     }
 
+    public void showToast(final String toast)
+    {
+        runOnUiThread(() -> Toast.makeText(MainActivity.this, toast, Toast.LENGTH_SHORT).show());
+    }
+
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -27,7 +28,8 @@ public class ProcessingService extends Service {
             public void run() {
                 try {
                     String key = SensorHandler.Authenticate();
-                    SensorHandler.QuerySamples(key);
+                    ArrayList<Double> output = SensorHandler.QuerySamples(key);
+                    MainActivity.showToast("test"+ output.get(0) +" "+ output.get(1));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
