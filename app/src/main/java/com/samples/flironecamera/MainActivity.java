@@ -75,7 +75,9 @@ public class MainActivity extends AppCompatActivity {
     private static double CutoffHumidity = 100;
     private static double CutoffDewPoint = 293.15;
 
-    private Boolean newData = false;
+    private volatile boolean newData = false;
+    private volatile boolean isUpdatingFromSensor = true;
+
     EditText cutoffTemperatureInput;
     EditText cutoffHumidityInput;
 
@@ -220,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void connect(Identity identity) {
         //We don't have to stop a discovery but it's nice to do if we have found the camera that we are looking for
+        //disconnect();
         cameraHandler.stopDiscovery(discoveryStatusListener);
 
         if (connectedIdentity != null) {
@@ -476,23 +479,25 @@ public class MainActivity extends AppCompatActivity {
         //photoImage = findViewById(R.id.photo_image);
     }
 
+    //multithreading to read from sensor
     public void startMultithreading() {
         Thread t = new Thread() {
             @Override
             public void run() {
                 try {
-                    while (!isInterrupted()) {
+                    while (isUpdatingFromSensor && !isInterrupted()) {
                         Thread.sleep(1000);
-                        System.out.println("trying to auth");
+                        //doing all the actual work
                         String key = SensorHandler.Authenticate();
-                        System.out.println("trying to read");
                         ArrayList<Double> output = SensorHandler.QuerySamples(key);
+                        //thread saftey
                         newData=true;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if(newData == true)
                                 {
+                                    //update UI on UI thread
                                     updateUIFromSensor(output.get(0),output.get(1));
                                     newData = false;
                                 }
