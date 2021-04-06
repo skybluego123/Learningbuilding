@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView maxTemperature;
 
     private ImageView msxImage;
-
+    private Boolean CONNECT = true;
     private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
     private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
 
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static double GetCutoffDewPoint() {
+        //System.out.println("cutoff dew point"+ CutoffDewPoint);
         return CutoffDewPoint;
     }
 
@@ -123,10 +125,16 @@ public class MainActivity extends AppCompatActivity {
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
                             //updates dew point
-                            CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+                            //CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), (1.0 / 8.0)) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+                            //double CutoffDewPointCelcius = CutoffDewPoint -273.15;
                             double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
+                            CutoffDewPoint =CutoffDewPointCelcius + 273.15;
                             ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
 
+                            System.out.println("t_dpk" + CutoffDewPoint);
+                            System.out.println("t_dpC" + CutoffDewPointCelcius);
+                            System.out.println("t_temp" + CutoffTemperature);
+                            System.out.println("t_hum" + CutoffHumidity);
 
                             return true; // consume.
                         }
@@ -154,9 +162,32 @@ public class MainActivity extends AppCompatActivity {
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
                             //calculate dew point
-                            CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+                            //CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), (1.0 / 8.0)) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
                             double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
+                            //double CutoffDewPointCelcius = CutoffDewPoint -273.15;
+                            CutoffDewPoint = CutoffDewPointCelcius +273.15;
+
+                            //weird edge case where we get temp data in C instead of in K
+                            System.out.println("h_dpk" + CutoffDewPoint);
+                            System.out.println("h_dpC" + CutoffDewPointCelcius);
+                            System.out.println("h_temp" + CutoffTemperature);
+                            System.out.println("h_hum" + CutoffHumidity);
+
+//                            if(CutoffDewPointCelcius < 0)
+//                            {
+//                                CutoffDewPointCelcius = CutoffDewPoint;
+//                                CutoffDewPoint = 273.15 +CutoffDewPointCelcius;
+//                                System.out.println("dpk" + CutoffDewPoint);
+//                                System.out.println("dpC2" + CutoffDewPointCelcius);
+//                                System.out.println("dpk" + CutoffDewPoint);
+//                                System.out.println("dpK2" + CutoffDewPoint);
+//
+//                            }
+
                             ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
+
+
+
                             return true; // consume.
                         }
                     }
@@ -192,8 +223,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void connectFlirOne(View view) {
-        startDiscovery();
-        connect(cameraHandler.getFlirOne());
+        if(CONNECT == true)
+        {
+            startDiscovery();
+            connect(cameraHandler.getFlirOne());
+            CONNECT = false;
+            Button button = (Button)findViewById(R.id.connect_flir_one);
+            button.setText("DISCONNECT");
+        }
+        else
+        {
+            disconnect();
+            CONNECT = true;
+            Button button = (Button)findViewById(R.id.connect_flir_one);
+            button.setText("CONNECT");
+
+        }
+
     }
 
     public void connectSimulatorOne(View view) {
@@ -239,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
 
         connectedIdentity = identity;
 
-        updateConnectionText(identity, "CONNECTING");
+        //updateConnectionText(identity, "CONNECTING");
         //IF your using "USB_DEVICE_ATTACHED" and "usb-device vendor-id" in the Android Manifest
         // you don't need to request permission, see documentation for more information
         if (UsbPermissionHandler.isFlirOne(identity)) {
@@ -272,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 cameraHandler.connect(identity, connectionStatusListener);
                 runOnUiThread(() -> {
-                    updateConnectionText(identity, "CONNECTING");
+                    //updateConnectionText(identity, "CONNECTING");
                     cameraHandler.startStream(streamDataListener);
                     //updateConnectionText(identity, "CONNECTED");
 
@@ -280,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 runOnUiThread(() -> {
                     Log.d(TAG, "Could not connect: " + e);
-                    updateConnectionText(identity, "DISCONNECTED");
+                    //updateConnectionText(identity, "DISCONNECTED");
                 });
             }
         }).start();
@@ -290,13 +336,13 @@ public class MainActivity extends AppCompatActivity {
      * Disconnect to a camera
      */
     private void disconnect() {
-        updateConnectionText(connectedIdentity, "DISCONNECTING");
+        //updateConnectionText(connectedIdentity, "DISCONNECTING");
         connectedIdentity = null;
         Log.d(TAG, "disconnect() called with: connectedIdentity = [" + connectedIdentity + "]");
         new Thread(() -> {
             cameraHandler.disconnect();
             runOnUiThread(() -> {
-                updateConnectionText(null, "DISCONNECTED");
+                //updateConnectionText(null, "DISCONNECTED");
             });
         }).start();
     }
@@ -304,11 +350,11 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Update the UI text for connection status
      */
-    private void updateConnectionText(Identity identity, String status) {
-        String deviceId = identity != null ? identity.deviceId : "";
-        //connectionStatus.setText(getString(R.string.connection_status_text, deviceId + " " + status));
-        connectionStatus.setText(status);
-    }
+//    private void updateConnectionText(Identity identity, String status) {
+//        String deviceId = identity != null ? identity.deviceId : "";
+//        //connectionStatus.setText(getString(R.string.connection_status_text, deviceId + " " + status));
+//        connectionStatus.setText(status);
+//    }
 
     /**
      * Start camera discovery
@@ -352,7 +398,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    updateConnectionText(connectedIdentity, "DISCONNECTED");
+                    //updateConnectionText(connectedIdentity, "DISCONNECTED");
                 }
             });
         }
@@ -471,7 +517,7 @@ public class MainActivity extends AppCompatActivity {
 //        s.onCreate();
 
         System.out.println("s initilized");
-        connectionStatus = findViewById(R.id.connection_status_text);
+        //connectionStatus = findViewById(R.id.connection_status_text);
         //discoveryStatus = findViewById(R.id.discovery_status);
         minTemperature = findViewById(R.id.MinimumC);
         maxTemperature = findViewById(R.id.MaximumC);
@@ -519,12 +565,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void updateUIFromSensor(Double temperature, Double humidity) {
+
+        System.out.println("Still here????");
         CutoffTemperature = (temperature - 32) * (5.0 / 9.0);
         CutoffHumidity = humidity;
-        CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
         ((TextView) findViewById(R.id.CutoffHumidityInput)).setText(String.format("%.1f %n", CutoffHumidity));
         ((TextView) findViewById(R.id.CutoffTermperatureInput)).setText(String.format("%.1f %n", CutoffTemperature));
-        ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPoint));
+
+        double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+        ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
+        CutoffDewPoint = 273.15 + CutoffDewPointCelcius;
+        CutoffTemperature = 273.15+CutoffTemperature;
+
+
     }
 
 }
