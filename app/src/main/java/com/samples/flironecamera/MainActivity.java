@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.flir.thermalsdk.ErrorCode;
 import com.flir.thermalsdk.androidsdk.ThermalSdkAndroid;
@@ -533,9 +534,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     while (!isInterrupted()) {
                         Thread.sleep(1000);
-                        Switch s = (Switch) findViewById(R.id.switch1);
+                        ToggleButton t = (ToggleButton) findViewById(R.id.switch1);
 
-                        while (s.isChecked()) {
+                        while (t.isChecked()) {
                             //doing all the actual work
                             String key = SensorHandler.Authenticate();
                             ArrayList<Double> output = SensorHandler.QuerySamples(key);

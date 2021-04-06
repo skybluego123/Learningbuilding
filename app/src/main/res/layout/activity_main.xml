@@ -23,14 +23,15 @@
             android:text="@string/connect_f1_text"
             android:textSize="14sp" />
 
-        <Switch
+        <ToggleButton
             android:id="@+id/switch1"
-            android:layout_width="212dp"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="true"
-            android:text="Automatic Sensor Input"
-            android:textSize="14sp" />
+            android:text="ToggleButton"
+            android:textOff="Manual Data Collection"
+            android:textOn="Automatic Data Collection" />
 
     </LinearLayout>
 
