@@ -13,14 +13,13 @@ package com.samples.flironecamera;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -36,8 +35,6 @@ import com.flir.thermalsdk.live.Identity;
 import com.flir.thermalsdk.live.connectivity.ConnectionStatusListener;
 import com.flir.thermalsdk.live.discovery.DiscoveryEventListener;
 import com.flir.thermalsdk.log.ThermalLog;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -83,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText cutoffTemperatureInput;
     EditText cutoffHumidityInput;
+    Switch cameraSwitch;
 
     /**
      * Show message on the screen
@@ -99,10 +97,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //testing
-
-
         setContentView(R.layout.activity_main);
+
+
+
+
         //links to input feild
         cutoffTemperatureInput = findViewById(R.id.CutoffTermperatureInput);
         cutoffHumidityInput = findViewById(R.id.CutoffHumidityInput);
@@ -212,6 +211,19 @@ public class MainActivity extends AppCompatActivity {
         startMultithreading();
 
         //showSDKversion(ThermalSdkAndroid.getVersion());
+        //connection toggle switch
+        cameraSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            System.out.println("aaa");
+            if(isChecked)
+            {
+                System.out.println("howdy");
+                startDiscovery();
+                connect(cameraHandler.getFlirOne());
+            }
+            else {
+                disconnect();
+            }
+        });
     }
 
     public void startDiscovery(View view) {
@@ -223,25 +235,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void connectFlirOne(View view) {
-        if(CONNECT == true)
-        {
-            startDiscovery();
-            connect(cameraHandler.getFlirOne());
-            CONNECT = false;
-            Button button = (Button)findViewById(R.id.connect_flir_one);
-            button.setText("DISCONNECT");
-        }
-        else
-        {
-            disconnect();
-            CONNECT = true;
-            Button button = (Button)findViewById(R.id.connect_flir_one);
-            button.setText("CONNECT");
-
-        }
-
-    }
+//    public void connectFlirOne(View view) {
+//        if(CONNECT == true)
+//        {
+//            startDiscovery();
+//            connect(cameraHandler.getFlirOne());
+//            CONNECT = false;
+//            Button button = (Button)findViewById(R.id.connect_flir_one);
+//            button.setText("DISCONNECT");
+//        }
+//        else
+//        {
+//            disconnect();
+//            CONNECT = true;
+//            Button button = (Button)findViewById(R.id.connect_flir_one);
+//            button.setText("CONNECT");
+//
+//        }
+//
+//    }
 
     public void connectSimulatorOne(View view) {
         connect(cameraHandler.getCppEmulator());
@@ -516,6 +528,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupViews() {
 //        ProcessingService s = new ProcessingService();
 //        s.onCreate();
+        cameraSwitch = (Switch) findViewById(R.id.switch3);
 
         System.out.println("s initilized");
         //connectionStatus = findViewById(R.id.connection_status_text);
@@ -534,9 +547,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     while (!isInterrupted()) {
                         Thread.sleep(1000);
-                        ToggleButton t = (ToggleButton) findViewById(R.id.switch1);
+                        Switch s = (Switch) findViewById(R.id.switch1);
 
-                        while (t.isChecked()) {
+                        while (s.isChecked()) {
                             //doing all the actual work
                             String key = SensorHandler.Authenticate();
                             ArrayList<Double> output = SensorHandler.QuerySamples(key);

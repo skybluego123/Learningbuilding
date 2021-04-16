@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:layout_margin="10dp"
     android:clipToPadding="true"
@@ -15,23 +15,20 @@
         android:layout_height="44dp"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/connect_flir_one"
+        <Switch
+            android:id="@+id/switch3"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:onClick="connectFlirOne"
-            android:text="@string/connect_f1_text"
-            android:textSize="14sp" />
+            android:switchPadding="0dp"
+            android:text="Termal Camera" />
 
-        <ToggleButton
+        <Switch
             android:id="@+id/switch1"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:checked="true"
-            android:text="ToggleButton"
-            android:textOff="Manual Data Collection"
-            android:textOn="Automatic Data Collection" />
+            android:layout_height="match_parent"
+            android:paddingLeft="65dp"
+            android:text="Temperature Sensor" />
+
 
     </LinearLayout>
 
