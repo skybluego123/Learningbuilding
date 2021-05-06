@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static double GetCutoffDewPoint() {
-        //System.out.println("cutoff dew point"+ CutoffDewPoint);
+        ////system.out.println("cutoff dew point"+ CutoffDewPoint);
         return CutoffDewPoint;
     }
 
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                             // the user is done typing.
                             //saves the input
                             CutoffTemperature = Double.valueOf(cutoffTemperatureInput.getText().toString()) + 273.15;
-                            System.out.println("temp input" + CutoffTemperature);
+                            //system.out.println("temp input" + CutoffTemperature);
                             //closes keyboard
                             //v.setCursorVisible(false);
                             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -131,10 +131,10 @@ public class MainActivity extends AppCompatActivity {
                             CutoffDewPoint =CutoffDewPointCelcius + 273.15;
                             ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
 
-                            System.out.println("t_dpk" + CutoffDewPoint);
-                            System.out.println("t_dpC" + CutoffDewPointCelcius);
-                            System.out.println("t_temp" + CutoffTemperature);
-                            System.out.println("t_hum" + CutoffHumidity);
+                            //system.out.println("t_dpk" + CutoffDewPoint);
+                            //system.out.println("t_dpC" + CutoffDewPointCelcius);
+                            //system.out.println("t_temp" + CutoffTemperature);
+                            //system.out.println("t_hum" + CutoffHumidity);
 
                             return true; // consume.
                         }
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                             // the user is done typing.
                             //saves the input
                             CutoffHumidity = Double.valueOf(cutoffHumidityInput.getText().toString());
-                            System.out.println("Humidity input" + CutoffHumidity);
+                            //system.out.println("Humidity input" + CutoffHumidity);
                             //closes keyboard
                             //v.setCursorVisible(false);
                             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -168,19 +168,19 @@ public class MainActivity extends AppCompatActivity {
                             CutoffDewPoint = CutoffDewPointCelcius +273.15;
 
                             //weird edge case where we get temp data in C instead of in K
-                            System.out.println("h_dpk" + CutoffDewPoint);
-                            System.out.println("h_dpC" + CutoffDewPointCelcius);
-                            System.out.println("h_temp" + CutoffTemperature);
-                            System.out.println("h_hum" + CutoffHumidity);
+                            //system.out.println("h_dpk" + CutoffDewPoint);
+                            //system.out.println("h_dpC" + CutoffDewPointCelcius);
+                            //system.out.println("h_temp" + CutoffTemperature);
+                            //system.out.println("h_hum" + CutoffHumidity);
 
 //                            if(CutoffDewPointCelcius < 0)
 //                            {
 //                                CutoffDewPointCelcius = CutoffDewPoint;
 //                                CutoffDewPoint = 273.15 +CutoffDewPointCelcius;
-//                                System.out.println("dpk" + CutoffDewPoint);
-//                                System.out.println("dpC2" + CutoffDewPointCelcius);
-//                                System.out.println("dpk" + CutoffDewPoint);
-//                                System.out.println("dpK2" + CutoffDewPoint);
+//                                //system.out.println("dpk" + CutoffDewPoint);
+//                                //system.out.println("dpC2" + CutoffDewPointCelcius);
+//                                //system.out.println("dpk" + CutoffDewPoint);
+//                                //system.out.println("dpK2" + CutoffDewPoint);
 //
 //                            }
 
@@ -213,10 +213,10 @@ public class MainActivity extends AppCompatActivity {
         //showSDKversion(ThermalSdkAndroid.getVersion());
         //connection toggle switch
         cameraSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            System.out.println("aaa");
+            ////system.out.println("aaa");
             if(isChecked)
             {
-                System.out.println("howdy");
+                ////system.out.println("howdy");
                 startDiscovery();
                 connect(cameraHandler.getFlirOne());
             }
@@ -530,7 +530,7 @@ public class MainActivity extends AppCompatActivity {
 //        s.onCreate();
         cameraSwitch = (Switch) findViewById(R.id.switch3);
 
-        System.out.println("s initilized");
+        //system.out.println("s initilized");
         //connectionStatus = findViewById(R.id.connection_status_text);
         //discoveryStatus = findViewById(R.id.discovery_status);
         minTemperature = findViewById(R.id.MinimumC);
@@ -580,7 +580,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUIFromSensor(Double temperature, Double humidity) {
 
-        System.out.println("Still here????");
+        //system.out.println("Still here????");
         CutoffTemperature = (temperature - 32) * (5.0 / 9.0);
         CutoffHumidity = humidity;
         ((TextView) findViewById(R.id.CutoffHumidityInput)).setText(String.format("%.1f %n", CutoffHumidity));

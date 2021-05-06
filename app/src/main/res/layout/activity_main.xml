@@ -20,14 +20,14 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:switchPadding="0dp"
-            android:text="Termal Camera" />
+            android:text="Thermal Camera" />
 
         <Switch
             android:id="@+id/switch1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingLeft="65dp"
-            android:text="Temperature Sensor" />
+            android:paddingLeft="70dp"
+            android:text="IoT Sensor" />
 
 
     </LinearLayout>
