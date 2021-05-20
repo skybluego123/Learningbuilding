@@ -1,0 +1,587 @@
+
+package com.samples.thermalapp;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.flir.thermalsdk.ErrorCode;
+import com.flir.thermalsdk.androidsdk.BuildConfig;
+import com.flir.thermalsdk.androidsdk.ThermalSdkAndroid;
+import com.flir.thermalsdk.androidsdk.live.connectivity.UsbPermissionHandler;
+import com.flir.thermalsdk.live.CommunicationInterface;
+import com.flir.thermalsdk.live.Identity;
+import com.flir.thermalsdk.live.connectivity.ConnectionStatusListener;
+import com.flir.thermalsdk.live.discovery.DiscoveryEventListener;
+import com.flir.thermalsdk.log.ThermalLog;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+/**
+ * Sample application for scanning a FLIR ONE or a built in emulator
+ * <p>
+ * See the {@link CameraHandler} for how to preform discovery of a FLIR ONE camera, connecting to it and start streaming images
+ * <p>
+ * The MainActivity is primarily focused to "glue" different helper classes together and updating the UI components
+ * <p/>
+ * Please note, this is <b>NOT</b> production quality code, error handling has been kept to a minimum to keep the code as clear and concise as possible
+ */
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    //Handles Android permission for eg Network
+    private PermissionHandler permissionHandler;
+
+    //Handles network camera operations
+    private CameraHandler cameraHandler;
+
+    private Identity connectedIdentity = null;
+    private TextView connectionStatus;
+    private TextView minTemperature;
+    private TextView maxTemperature;
+
+    private ImageView msxImage;
+    private Boolean CONNECT = true;
+    private LinkedBlockingQueue<FrameDataHolder> framesBuffer = new LinkedBlockingQueue(21);
+    private UsbPermissionHandler usbPermissionHandler = new UsbPermissionHandler();
+
+    private static double CutoffTemperature = 20;
+    private static double CutoffHumidity = 100;
+    private static double CutoffDewPoint = 293.15;
+
+    private volatile boolean newData = false;
+    private volatile boolean isUpdatingFromSensor = true;
+
+    EditText cutoffTemperatureInput;
+    EditText cutoffHumidityInput;
+    Switch cameraSwitch;
+
+    /**
+     * Show message on the screen
+     */
+    public interface ShowMessage {
+        void show(String message);
+    }
+
+    public static double GetCutoffDewPoint() {
+        ////system.out.println("cutoff dew point"+ CutoffDewPoint);
+        return CutoffDewPoint;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+
+
+        //links to input feild
+        cutoffTemperatureInput = findViewById(R.id.CutoffTermperatureInput);
+        cutoffHumidityInput = findViewById(R.id.CutoffHumidityInput);
+
+        //when user presses done for temperature we save the input
+        ((EditText) findViewById(R.id.CutoffTermperatureInput)).setOnEditorActionListener(
+                (v, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                            actionId == EditorInfo.IME_ACTION_DONE ||
+                            event != null &&
+                                    event.getAction() == KeyEvent.ACTION_DOWN &&
+                                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                        if (event == null || !event.isShiftPressed()) {
+                            // the user is done typing.
+                            //saves the input
+                            CutoffTemperature = Double.valueOf(cutoffTemperatureInput.getText().toString()) + 273.15;
+                            //system.out.println("temp input" + CutoffTemperature);
+                            //closes keyboard
+                            //v.setCursorVisible(false);
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                            //updates dew point
+                            //CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), (1.0 / 8.0)) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+                            //double CutoffDewPointCelcius = CutoffDewPoint -273.15;
+                            double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
+                            CutoffDewPoint =CutoffDewPointCelcius + 273.15;
+                            ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
+
+                            //system.out.println("t_dpk" + CutoffDewPoint);
+                            //system.out.println("t_dpC" + CutoffDewPointCelcius);
+                            //system.out.println("t_temp" + CutoffTemperature);
+                            //system.out.println("t_hum" + CutoffHumidity);
+
+                            return true; // consume.
+                        }
+                    }
+                    return false; // pass on to other listeners.
+                }
+        );
+
+        //when user presses done for humidity we save the input
+        ((EditText) findViewById(R.id.CutoffHumidityInput)).setOnEditorActionListener(
+                (v, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                            actionId == EditorInfo.IME_ACTION_DONE ||
+                            event != null &&
+                                    event.getAction() == KeyEvent.ACTION_DOWN &&
+                                    event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                        if (event == null || !event.isShiftPressed()) {
+                            // the user is done typing.
+                            //saves the input
+                            CutoffHumidity = Double.valueOf(cutoffHumidityInput.getText().toString());
+                            //system.out.println("Humidity input" + CutoffHumidity);
+                            //closes keyboard
+                            //v.setCursorVisible(false);
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                            //calculate dew point
+                            //CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), (1.0 / 8.0)) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+                            double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
+                            //double CutoffDewPointCelcius = CutoffDewPoint -273.15;
+                            CutoffDewPoint = CutoffDewPointCelcius +273.15;
+
+                            //weird edge case where we get temp data in C instead of in K
+                            //system.out.println("h_dpk" + CutoffDewPoint);
+                            //system.out.println("h_dpC" + CutoffDewPointCelcius);
+                            //system.out.println("h_temp" + CutoffTemperature);
+                            //system.out.println("h_hum" + CutoffHumidity);
+
+//                            if(CutoffDewPointCelcius < 0)
+//                            {
+//                                CutoffDewPointCelcius = CutoffDewPoint;
+//                                CutoffDewPoint = 273.15 +CutoffDewPointCelcius;
+//                                //system.out.println("dpk" + CutoffDewPoint);
+//                                //system.out.println("dpC2" + CutoffDewPointCelcius);
+//                                //system.out.println("dpk" + CutoffDewPoint);
+//                                //system.out.println("dpK2" + CutoffDewPoint);
+//
+//                            }
+
+                            ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
+
+
+
+                            return true; // consume.
+                        }
+                    }
+                    return false; // pass on to other listeners.
+                }
+        );
+
+
+        ThermalLog.LogLevel enableLoggingInDebug = BuildConfig.DEBUG ? ThermalLog.LogLevel.DEBUG : ThermalLog.LogLevel.NONE;
+
+        //ThermalSdkAndroid has to be initiated from a Activity with the Application Context to prevent leaking Context,
+        // and before ANY using any ThermalSdkAndroid functions
+        //ThermalLog will show log from the Thermal SDK in standards android log framework
+        ThermalSdkAndroid.init(getApplicationContext(), enableLoggingInDebug);
+
+        permissionHandler = new PermissionHandler(showMessage, MainActivity.this);
+
+        cameraHandler = new CameraHandler();
+
+        setupViews();
+        startMultithreading();
+
+        //showSDKversion(ThermalSdkAndroid.getVersion());
+        //connection toggle switch
+        cameraSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ////system.out.println("aaa");
+            if(isChecked)
+            {
+                ////system.out.println("howdy");
+                startDiscovery();
+                connect(cameraHandler.getFlirOne());
+            }
+            else {
+                disconnect();
+            }
+        });
+    }
+
+    public void startDiscovery(View view) {
+        startDiscovery();
+    }
+
+    public void stopDiscovery(View view) {
+        stopDiscovery();
+    }
+
+
+//    public void connectFlirOne(View view) {
+//        if(CONNECT == true)
+//        {
+//            startDiscovery();
+//            connect(cameraHandler.getFlirOne());
+//            CONNECT = false;
+//            Button button = (Button)findViewById(R.id.connect_flir_one);
+//            button.setText("DISCONNECT");
+//        }
+//        else
+//        {
+//            disconnect();
+//            CONNECT = true;
+//            Button button = (Button)findViewById(R.id.connect_flir_one);
+//            button.setText("CONNECT");
+//
+//        }
+//
+//    }
+
+    public void connectSimulatorOne(View view) {
+        connect(cameraHandler.getCppEmulator());
+    }
+
+    public void connectSimulatorTwo(View view) {
+        connect(cameraHandler.getFlirOneEmulator());
+    }
+
+    public void disconnect(View view) {
+        disconnect();
+    }
+
+    /**
+     * Handle Android permission request response for Bluetooth permissions
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult() called with: requestCode = [" + requestCode + "], permissions = [" + permissions + "], grantResults = [" + grantResults + "]");
+        permissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    /**
+     * Connect to a Camera
+     */
+    private void connect(Identity identity) {
+        //We don't have to stop a discovery but it's nice to do if we have found the camera that we are looking for
+        //disconnect();
+        cameraHandler.stopDiscovery(discoveryStatusListener);
+
+        if (connectedIdentity != null) {
+            Log.d(TAG, "connect(), in *this* code sample we only support one camera connection at the time");
+            showMessage.show("connect(), in *this* code sample we only support one camera connection at the time");
+            return;
+        }
+
+        if (identity == null) {
+            Log.d(TAG, "connect(), can't connect, no camera available");
+            showMessage.show("connect(), can't connect, no camera available");
+            return;
+        }
+
+        connectedIdentity = identity;
+
+        //updateConnectionText(identity, "CONNECTING");
+        //IF your using "USB_DEVICE_ATTACHED" and "usb-device vendor-id" in the Android Manifest
+        // you don't need to request permission, see documentation for more information
+        if (UsbPermissionHandler.isFlirOne(identity)) {
+            usbPermissionHandler.requestFlirOnePermisson(identity, this, permissionListener);
+        } else {
+            doConnect(identity);
+        }
+
+    }
+
+    private UsbPermissionHandler.UsbPermissionListener permissionListener = new UsbPermissionHandler.UsbPermissionListener() {
+        @Override
+        public void permissionGranted(Identity identity) {
+            doConnect(identity);
+        }
+
+        @Override
+        public void permissionDenied(Identity identity) {
+            MainActivity.this.showMessage.show("Permission was denied for identity ");
+        }
+
+        @Override
+        public void error(UsbPermissionHandler.UsbPermissionListener.ErrorType errorType, final Identity identity) {
+            MainActivity.this.showMessage.show("Error when asking for permission for FLIR ONE, error:" + errorType + " identity:" + identity);
+        }
+    };
+
+    private void doConnect(Identity identity) {
+        new Thread(() -> {
+            try {
+                cameraHandler.connect(identity, connectionStatusListener);
+                runOnUiThread(() -> {
+                    //updateConnectionText(identity, "CONNECTING");
+                    cameraHandler.startStream(streamDataListener);
+                    //updateConnectionText(identity, "CONNECTED");
+
+                });
+            } catch (IOException e) {
+                runOnUiThread(() -> {
+                    Log.d(TAG, "Could not connect: " + e);
+                    //updateConnectionText(identity, "DISCONNECTED");
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * Disconnect to a camera
+     */
+    private void disconnect() {
+        //updateConnectionText(connectedIdentity, "DISCONNECTING");
+        connectedIdentity = null;
+        Log.d(TAG, "disconnect() called with: connectedIdentity = [" + connectedIdentity + "]");
+        new Thread(() -> {
+            cameraHandler.disconnect();
+            runOnUiThread(() -> {
+                //updateConnectionText(null, "DISCONNECTED");
+            });
+        }).start();
+    }
+
+    /**
+     * Update the UI text for connection status
+     */
+//    private void updateConnectionText(Identity identity, String status) {
+//        String deviceId = identity != null ? identity.deviceId : "";
+//        //connectionStatus.setText(getString(R.string.connection_status_text, deviceId + " " + status));
+//        connectionStatus.setText(status);
+//    }
+
+    /**
+     * Start camera discovery
+     */
+    private void startDiscovery() {
+        cameraHandler.startDiscovery(cameraDiscoveryListener, discoveryStatusListener);
+    }
+
+    /**
+     * Stop camera discovery
+     */
+    private void stopDiscovery() {
+        cameraHandler.stopDiscovery(discoveryStatusListener);
+    }
+
+    /**
+     * Callback for discovery status, using it to update UI
+     */
+    private CameraHandler.DiscoveryStatus discoveryStatusListener = new CameraHandler.DiscoveryStatus() {
+        @Override
+        public void started() {
+            //discoveryStatus.setText(getString(R.string.connection_status_text, "discovering"));
+        }
+
+        @Override
+        public void stopped() {
+            //discoveryStatus.setText(getString(R.string.connection_status_text, "not discovering"));
+        }
+    };
+
+    /**
+     * Camera connecting state thermalImageStreamListener, keeps track of if the camera is connected or not
+     * <p>
+     * Note that callbacks are received on a non-ui thread so have to eg use {@link #runOnUiThread(Runnable)} to interact view UI components
+     */
+    private ConnectionStatusListener connectionStatusListener = new ConnectionStatusListener() {
+        @Override
+        public void onDisconnected(@org.jetbrains.annotations.Nullable ErrorCode errorCode) {
+            Log.d(TAG, "onDisconnected errorCode:" + errorCode);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //updateConnectionText(connectedIdentity, "DISCONNECTED");
+                }
+            });
+        }
+    };
+
+    private final CameraHandler.StreamDataListener streamDataListener = new CameraHandler.StreamDataListener() {
+
+        @Override
+        public void images(FrameDataHolder dataHolder) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    msxImage.setImageBitmap(dataHolder.msxBitmap);
+                }
+            });
+        }
+
+        @Override
+        public void images(Bitmap msxBitmap, Bitmap dcBitmap) {
+
+            try {
+                Log.d(TAG, "loading bitmap");
+                framesBuffer.put(new FrameDataHolder(msxBitmap, dcBitmap));
+            } catch (InterruptedException e) {
+                //if interrupted while waiting for adding a new item in the queue
+                Log.e(TAG, "images(), unable to add incoming images to frames buffer, exception:" + e);
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "framebuffer size:" + framesBuffer.size());
+                    FrameDataHolder poll = framesBuffer.poll();
+                    msxImage.setImageBitmap(poll.msxBitmap);
+                    //photoImage.setImageBitmap(poll.dcBitmap);
+                }
+            });
+
+        }
+
+        @Override
+        public void images(Bitmap msxBitmap, Bitmap dcBitmap, Double minC, Double maxC) {
+
+            try {
+                Log.d(TAG, "loading bitmap");
+                framesBuffer.put(new FrameDataHolder(msxBitmap, dcBitmap));
+            } catch (InterruptedException e) {
+                //if interrupted while waiting for adding a new item in the queue
+                Log.e(TAG, "images(), unable to add incoming images to frames buffer, exception:" + e);
+            }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "framebuffer size:" + framesBuffer.size());
+                    FrameDataHolder poll = framesBuffer.poll();
+                    msxImage.setImageBitmap(poll.msxBitmap);
+                    if (maxC > -8) {
+                        minTemperature.setText(String.valueOf(minC));
+                        maxTemperature.setText(String.valueOf(maxC));
+                    }
+
+                    //photoImage.setImageBitmap(poll.dcBitmap);
+                }
+            });
+
+        }
+    };
+
+    /**
+     * Camera Discovery thermalImageStreamListener, is notified if a new camera was found during a active discovery phase
+     * <p>
+     * Note that callbacks are received on a non-ui thread so have to eg use {@link #runOnUiThread(Runnable)} to interact view UI components
+     */
+    private DiscoveryEventListener cameraDiscoveryListener = new DiscoveryEventListener() {
+        @Override
+        public void onCameraFound(Identity identity) {
+            Log.d(TAG, "onCameraFound identity:" + identity);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    cameraHandler.add(identity);
+                }
+            });
+        }
+
+        @Override
+        public void onDiscoveryError(CommunicationInterface communicationInterface, ErrorCode errorCode) {
+            Log.d(TAG, "onDiscoveryError communicationInterface:" + communicationInterface + " errorCode:" + errorCode);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    stopDiscovery();
+                    MainActivity.this.showMessage.show("onDiscoveryError communicationInterface:" + communicationInterface + " errorCode:" + errorCode);
+                }
+            });
+        }
+    };
+
+    private ShowMessage showMessage = new ShowMessage() {
+        @Override
+        public void show(String message) {
+            Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+        }
+    };
+
+//    private void showSDKversion(String version) {
+//        TextView sdkVersionTextView = findViewById(R.id.sdk_version);
+//        String sdkVersionText = getString(R.string.sdk_version_text, version);
+//        sdkVersionTextView.setText(sdkVersionText);
+//    }
+
+    private void setupViews() {
+//        ProcessingService s = new ProcessingService();
+//        s.onCreate();
+        cameraSwitch = (Switch) findViewById(R.id.switch3);
+
+        //system.out.println("s initilized");
+        //connectionStatus = findViewById(R.id.connection_status_text);
+        //discoveryStatus = findViewById(R.id.discovery_status);
+        minTemperature = findViewById(R.id.MinimumC);
+        maxTemperature = findViewById(R.id.MaximumC);
+        msxImage = findViewById(R.id.msx_image);
+        //photoImage = findViewById(R.id.photo_image);
+    }
+
+    //multithreading to read from sensor
+    public void startMultithreading() {
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(1000);
+                        Switch s = (Switch) findViewById(R.id.switch1);
+
+                        while (s.isChecked()) {
+                            //doing all the actual work
+                            String key = SensorHandler.Authenticate();
+                            ArrayList<Double> output = SensorHandler.QuerySamples(key);
+                            //thread saftey
+                            newData = true;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (newData == true) {
+                                        //update UI on UI thread
+                                        updateUIFromSensor(output.get(0), output.get(1));
+                                        newData = false;
+                                    }
+                                }
+                            });
+                        }
+
+
+                    }
+                } catch (InterruptedException | IOException e) {
+                }
+            }
+        };
+
+        t.start();
+    }
+
+
+    private void updateUIFromSensor(Double temperature, Double humidity) {
+
+        //system.out.println("Still here????");
+        CutoffTemperature = (temperature - 32) * (5.0 / 9.0);
+        CutoffHumidity = humidity;
+        ((TextView) findViewById(R.id.CutoffHumidityInput)).setText(String.format("%.1f %n", CutoffHumidity));
+        ((TextView) findViewById(R.id.CutoffTermperatureInput)).setText(String.format("%.1f %n", CutoffTemperature));
+
+        double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+        ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
+        CutoffDewPoint = 273.15 + CutoffDewPointCelcius;
+        CutoffTemperature = 273.15+CutoffTemperature;
+
+
+    }
+
+}
+
