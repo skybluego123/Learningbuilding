@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static double GetCutoffDewPoint() {
-        ////system.out.println("cutoff dew point"+ CutoffDewPoint);
         return CutoffDewPoint;
     }
 
@@ -107,24 +106,13 @@ public class MainActivity extends AppCompatActivity {
                             // the user is done typing.
                             //saves the input
                             CutoffTemperature = Double.valueOf(cutoffTemperatureInput.getText().toString()) + 273.15;
-                            //system.out.println("temp input" + CutoffTemperature);
                             //closes keyboard
-                            //v.setCursorVisible(false);
                             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
                             //updates dew point
-                            //CutoffDewPoint = ((Math.pow((CutoffHumidity / 100), (1.0 / 8.0)) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
-                            //double CutoffDewPointCelcius = CutoffDewPoint -273.15;
                             double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * (CutoffTemperature - 273.15))) + ((.1 * (CutoffTemperature - 273.15)) - 112));
                             CutoffDewPoint =CutoffDewPointCelcius + 273.15;
                             ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
-
-                            //system.out.println("t_dpk" + CutoffDewPoint);
-                            //system.out.println("t_dpC" + CutoffDewPointCelcius);
-                            //system.out.println("t_temp" + CutoffTemperature);
-                            //system.out.println("t_hum" + CutoffHumidity);
-
                             return true; // consume.
                         }
                     }
@@ -199,13 +187,10 @@ public class MainActivity extends AppCompatActivity {
         setupViews();
         startMultithreading();
 
-        //showSDKversion(ThermalSdkAndroid.getVersion());
         //connection toggle switch
         cameraSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ////system.out.println("aaa");
             if(isChecked)
             {
-                ////system.out.println("howdy");
                 startDiscovery();
                 connect(cameraHandler.getFlirOne());
             }
@@ -224,37 +209,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    public void connectFlirOne(View view) {
-//        if(CONNECT == true)
-//        {
-//            startDiscovery();
-//            connect(cameraHandler.getFlirOne());
-//            CONNECT = false;
-//            Button button = (Button)findViewById(R.id.connect_flir_one);
-//            button.setText("DISCONNECT");
-//        }
-//        else
-//        {
-//            disconnect();
-//            CONNECT = true;
-//            Button button = (Button)findViewById(R.id.connect_flir_one);
-//            button.setText("CONNECT");
-//
-//        }
-//
-//    }
-
-    public void connectSimulatorOne(View view) {
-        connect(cameraHandler.getCppEmulator());
-    }
-
-    public void connectSimulatorTwo(View view) {
-        connect(cameraHandler.getFlirOneEmulator());
-    }
-
-    public void disconnect(View view) {
-        disconnect();
-    }
 
     /**
      * Handle Android permission request response for Bluetooth permissions
@@ -508,24 +462,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-//    private void showSDKversion(String version) {
-//        TextView sdkVersionTextView = findViewById(R.id.sdk_version);
-//        String sdkVersionText = getString(R.string.sdk_version_text, version);
-//        sdkVersionTextView.setText(sdkVersionText);
-//    }
 
     private void setupViews() {
-//        ProcessingService s = new ProcessingService();
-//        s.onCreate();
-        cameraSwitch = (Switch) findViewById(R.id.switch3);
 
-        //system.out.println("s initilized");
-        //connectionStatus = findViewById(R.id.connection_status_text);
-        //discoveryStatus = findViewById(R.id.discovery_status);
+        cameraSwitch = (Switch) findViewById(R.id.switch3);
         minTemperature = findViewById(R.id.MinimumC);
         maxTemperature = findViewById(R.id.MaximumC);
         msxImage = findViewById(R.id.msx_image);
-        //photoImage = findViewById(R.id.photo_image);
     }
 
     //multithreading to read from sensor
@@ -536,10 +479,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     while (!isInterrupted()) {
                         Thread.sleep(1000);
-                        Switch s = (Switch) findViewById(R.id.switch1);
-
+                        Switch s = findViewById(R.id.switch1);
                         while (s.isChecked()) {
-                            //doing all the actual work
+                            //calls methods to read from the sensors and collect output
                             String key = SensorHandler.Authenticate();
                             ArrayList<Double> output = SensorHandler.QuerySamples(key);
                             //thread saftey
@@ -569,18 +511,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUIFromSensor(Double temperature, Double humidity) {
 
-        //system.out.println("Still here????");
+        //changes from F to C
         CutoffTemperature = (temperature - 32) * (5.0 / 9.0);
+
+        //Updates UI text view components
         CutoffHumidity = humidity;
         ((TextView) findViewById(R.id.CutoffHumidityInput)).setText(String.format("%.1f %n", CutoffHumidity));
         ((TextView) findViewById(R.id.CutoffTermperatureInput)).setText(String.format("%.1f %n", CutoffTemperature));
 
+        //calculates dew point
         double CutoffDewPointCelcius = ((Math.pow((CutoffHumidity / 100), 1.0 / 8.0) * (112 + .9 * CutoffTemperature)) + ((.1 * CutoffTemperature) - 112));
+        //updates UI text view comonents
         ((TextView) findViewById(R.id.DewPointDisplay)).setText(String.format("%.3f %n", CutoffDewPointCelcius));
+
+        //always save in K
         CutoffDewPoint = 273.15 + CutoffDewPointCelcius;
         CutoffTemperature = 273.15+CutoffTemperature;
-
-
     }
 
 }
