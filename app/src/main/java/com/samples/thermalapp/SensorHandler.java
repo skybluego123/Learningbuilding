@@ -87,7 +87,7 @@ public class SensorHandler {
     }
 
 
-    public static ArrayList<Double> QuerySamples(String oauthKey) throws IOException
+    public static ArrayList<Double> QuerySamples(String oauthKey,int sensorID) throws IOException
     {
         //sets up for a post
         URL url = new URL(passwords.BASEURL + "/samples");
@@ -116,12 +116,25 @@ public class SensorHandler {
                 response.append(responseLine.trim());
             }
             //unpacks json
-            JSONObject obj = new JSONObject(response.toString());
-            obj = obj.getJSONObject("sensors");
-            obj = obj.getJSONArray(passwords.SENSORNAME).getJSONObject(0);
-            System.out.println(obj);
-            readings.add(Double.parseDouble(obj.getString("temperature")));
-            readings.add(Double.parseDouble(obj.getString("humidity")));
+            JSONObject sensor1JsonObject = new JSONObject(response.toString());
+            sensor1JsonObject = sensor1JsonObject.getJSONObject("sensors");
+            //System.out.println(obj);
+            JSONObject sensor2JsonObject = sensor1JsonObject.getJSONArray(passwords.SENSORNAME2).getJSONObject(0);
+            sensor1JsonObject = sensor1JsonObject.getJSONArray(passwords.SENSORNAME1).getJSONObject(0);
+
+            System.out.println("reading sensor1 "+ sensor1JsonObject);
+            System.out.println("reading sensor2 "+ sensor2JsonObject);
+
+            if(sensorID == 1)
+            {
+                readings.add(Double.parseDouble(sensor1JsonObject.getString("temperature")));
+                readings.add(Double.parseDouble(sensor1JsonObject.getString("humidity")));
+            }
+            if(sensorID == 2)
+            {
+                readings.add(Double.parseDouble(sensor2JsonObject.getString("temperature")));
+                readings.add(Double.parseDouble(sensor2JsonObject.getString("humidity")));
+            }
 
             System.out.println(readings);
         } catch (JSONException e) {

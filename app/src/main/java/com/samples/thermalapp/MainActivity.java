@@ -1,4 +1,3 @@
-
 package com.samples.thermalapp;
 
 import android.content.Context;
@@ -9,11 +8,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.flir.thermalsdk.ErrorCode;
 import com.flir.thermalsdk.androidsdk.BuildConfig;
@@ -66,10 +67,12 @@ public class MainActivity extends AppCompatActivity {
 
     private volatile boolean newData = false;
     private volatile boolean isUpdatingFromSensor = true;
+    private int SensorID = 1;
 
     EditText cutoffTemperatureInput;
     EditText cutoffHumidityInput;
     Switch cameraSwitch;
+    ToggleButton cameraToggleButton;
 
     /**
      * Show message on the screen
@@ -93,6 +96,17 @@ public class MainActivity extends AppCompatActivity {
         //links to input feild
         cutoffTemperatureInput = findViewById(R.id.CutoffTermperatureInput);
         cutoffHumidityInput = findViewById(R.id.CutoffHumidityInput);
+        cameraToggleButton = findViewById(R.id.toggleButton);
+
+        cameraToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    SensorID = 2;
+                } else {
+                    SensorID =1;
+                }
+            }
+        });
 
         //when user presses done for temperature we save the input
         ((EditText) findViewById(R.id.CutoffTermperatureInput)).setOnEditorActionListener(
@@ -483,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
                         while (s.isChecked()) {
                             //calls methods to read from the sensors and collect output
                             String key = SensorHandler.Authenticate();
-                            ArrayList<Double> output = SensorHandler.QuerySamples(key);
+                            ArrayList<Double> output = SensorHandler.QuerySamples(key,SensorID);
                             //thread saftey
                             newData = true;
                             runOnUiThread(new Runnable() {
@@ -530,4 +544,3 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-

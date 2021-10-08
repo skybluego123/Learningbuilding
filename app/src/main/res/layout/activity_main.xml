@@ -26,8 +26,18 @@
             android:id="@+id/switch1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingLeft="70dp"
-            android:text="IoT Sensor" />
+            android:paddingLeft="10dp"
+            android:text="IoT Sensor"
+            android:textAlignment="viewStart" />
+
+        <ToggleButton
+            android:id="@+id/toggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ToggleButton"
+            android:textOff="1"
+            android:textOn="2" />
 
 
     </LinearLayout>
